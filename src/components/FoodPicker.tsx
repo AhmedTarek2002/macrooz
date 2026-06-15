@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Search, Minus, Plus, Check, X } from "lucide-react";
 import {
   Drawer,
@@ -9,7 +9,7 @@ import {
 import { useFoods } from "@/hooks/useData";
 import { FOOD_CATEGORIES, MEAL_META, type Meal } from "@/lib/nutrients";
 import { foodToSnapshot, fmt } from "@/lib/nutrition";
-import type { Food } from "@/lib/types";
+import type { Food, FoodLog } from "@/lib/types";
 
 const PRESETS = [50, 100, 200];
 
@@ -18,17 +18,31 @@ export function FoodPicker({
   open,
   onOpenChange,
   onAdd,
+  editLog,
+  onUpdate,
 }: {
   meal: Meal;
   open: boolean;
   onOpenChange: (o: boolean) => void;
   onAdd: (food: Food, grams: number) => void;
+  editLog?: FoodLog | null;
+  onUpdate?: (food: Food, grams: number) => void;
 }) {
   const { data: foods = [] } = useFoods();
   const [query, setQuery] = useState("");
   const [cat, setCat] = useState<string>("All");
   const [selected, setSelected] = useState<Food | null>(null);
   const [grams, setGrams] = useState(100);
+  const isEdit = !!editLog;
+
+  // When editing, jump straight to the current food's detail with its grams.
+  useEffect(() => {
+    if (open && editLog) {
+      const current = foods.find((f) => f.id === editLog.food_id) ?? null;
+      setSelected(current);
+      setGrams(editLog.grams);
+    }
+  }, [open, editLog, foods]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -46,10 +60,15 @@ export function FoodPicker({
 
   const handleAdd = () => {
     if (!selected) return;
-    onAdd(selected, grams);
+    if (isEdit && onUpdate) {
+      onUpdate(selected, grams);
+    } else {
+      onAdd(selected, grams);
+    }
     reset();
     onOpenChange(false);
   };
+
 
   const scaled = selected ? grams / 100 : 1;
 
@@ -58,7 +77,8 @@ export function FoodPicker({
       <DrawerContent className="max-h-[88vh]">
         <DrawerHeader className="pb-2">
           <DrawerTitle className="flex items-center gap-2">
-            <span>{MEAL_META[meal].icon}</span> Add to {MEAL_META[meal].label}
+            <span>{MEAL_META[meal].icon}</span>{" "}
+            {isEdit ? `Edit · ${MEAL_META[meal].label}` : `Add to ${MEAL_META[meal].label}`}
           </DrawerTitle>
         </DrawerHeader>
 
@@ -184,7 +204,7 @@ export function FoodPicker({
               onClick={handleAdd}
               className="press mt-4 flex w-full items-center justify-center gap-2 rounded-xl gradient-hero py-3.5 font-bold text-primary-foreground"
             >
-              <Check className="h-5 w-5" /> Add {grams}g
+              <Check className="h-5 w-5" /> {isEdit ? "Save" : "Add"} {grams}g
             </button>
           </div>
         )}

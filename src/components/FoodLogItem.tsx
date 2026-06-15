@@ -10,11 +10,13 @@ export function FoodLogItem({
   onUpdateGrams,
   onDelete,
   onDuplicate,
+  onEdit,
 }: {
   log: FoodLog;
   onUpdateGrams: (id: string, grams: number) => void;
   onDelete: (id: string) => void;
   onDuplicate: (log: FoodLog) => void;
+  onEdit: (log: FoodLog) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: log.id,
@@ -48,15 +50,21 @@ export function FoodLogItem({
       >
         <GripVertical className="h-4 w-4" />
       </button>
-      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted text-base">
-        {log.food_snapshot.icon}
-      </span>
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-semibold" dir="auto">{log.food_snapshot.name}</p>
-        <p className="text-[11px] text-muted-foreground">
-          {fmt(s.calories)} kcal · P{fmt(s.protein)} C{fmt(s.carbs)} F{fmt(s.fat)}
-        </p>
-      </div>
+      <button
+        onClick={() => onEdit(log)}
+        className="press flex min-w-0 flex-1 items-center gap-2 text-left"
+        aria-label="Edit item"
+      >
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted text-base">
+          {log.food_snapshot.icon}
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-semibold" dir="auto">{log.food_snapshot.name}</p>
+          <p className="text-[11px] text-muted-foreground">
+            {fmt(s.calories)} kcal · P{fmt(s.protein)} C{fmt(s.carbs)} F{fmt(s.fat)}
+          </p>
+        </div>
+      </button>
 
       <div className="flex items-center gap-0.5 rounded-lg bg-muted/70 p-0.5">
         <button onClick={() => commit(grams - 10)} className="press rounded-md p-1">

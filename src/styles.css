@@ -195,6 +195,17 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     overscroll-behavior-y: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  /* Keep real text entry selectable/editable. */
+  input,
+  textarea,
+  [contenteditable="true"] {
+    -webkit-user-select: text;
+    user-select: text;
   }
 }
 

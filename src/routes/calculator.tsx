@@ -10,6 +10,8 @@ import {
 } from "@/components/ui/collapsible";
 import { AppShell } from "@/components/AppShell";
 import { useProfile } from "@/context/ProfileProvider";
+import { useWeightMutations } from "@/hooks/useData";
+import { todayStr } from "@/lib/nutrition";
 import { supabase } from "@/integrations/supabase/client";
 import {
   FORMULAS,
@@ -79,6 +81,8 @@ function CalculatorPage() {
   const { currentProfile, refetchProfiles } = useProfile();
   const navigate = useNavigate();
   const pid = currentProfile?.id ?? null;
+  const { upsert: upsertWeight } = useWeightMutations(pid);
+
 
   const [sex, setSex] = useState<"male" | "female">("male");
   const [age, setAge] = useState("");
@@ -164,11 +168,20 @@ function CalculatorPage() {
         fat_target: selected.fat,
       } as never)
       .eq("id", pid);
-    setSaving(false);
     if (error) {
+      setSaving(false);
       toast.error("Could not save targets");
       return;
     }
+    // Log today's weight straight into the tracker (shows up in Daily Review).
+    if (weight) {
+      try {
+        await upsertWeight.mutateAsync({ entry_date: todayStr(), weight: Number(weight) });
+      } catch {
+        /* non-fatal */
+      }
+    }
+    setSaving(false);
     refetchProfiles();
     toast.success("Targets applied ✓ Now build your day");
     navigate({ to: "/" });
@@ -204,26 +217,6 @@ function CalculatorPage() {
           <NumField label="Height" value={height} onChange={setHeight} suffix="cm" placeholder="175" />
           <NumField label="Weight" value={weight} onChange={setWeight} step={0.1} suffix="kg" placeholder="75" />
         </div>
-
-        {needsBodyFat && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            className="mt-3"
-          >
-            <NumField
-              label="Body fat %"
-              value={bodyFat}
-              onChange={setBodyFat}
-              step={0.1}
-              suffix="%"
-              placeholder="20"
-            />
-            <p className="mt-1 text-[11px] text-muted-foreground">
-              Required for the Katch-McArdle formula.
-            </p>
-          </motion.div>
-        )}
 
         <div className="mt-3">
           <span className="text-xs font-medium text-muted-foreground">Activity level</span>
@@ -294,6 +287,26 @@ function CalculatorPage() {
             );
           })}
         </div>
+
+        {needsBodyFat && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            className="mt-3 rounded-xl border border-primary/40 bg-primary/5 p-3"
+          >
+            <NumField
+              label="Body fat %"
+              value={bodyFat}
+              onChange={setBodyFat}
+              step={0.1}
+              suffix="%"
+              placeholder="20"
+            />
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              Required for the Katch-McArdle formula.
+            </p>
+          </motion.div>
+        )}
       </section>
 
       {/* Advanced settings */}
