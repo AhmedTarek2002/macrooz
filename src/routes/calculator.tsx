@@ -205,26 +205,6 @@ function CalculatorPage() {
           <NumField label="Weight" value={weight} onChange={setWeight} step={0.1} suffix="kg" placeholder="75" />
         </div>
 
-        {needsBodyFat && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            className="mt-3"
-          >
-            <NumField
-              label="Body fat %"
-              value={bodyFat}
-              onChange={setBodyFat}
-              step={0.1}
-              suffix="%"
-              placeholder="20"
-            />
-            <p className="mt-1 text-[11px] text-muted-foreground">
-              Required for the Katch-McArdle formula.
-            </p>
-          </motion.div>
-        )}
-
         <div className="mt-3">
           <span className="text-xs font-medium text-muted-foreground">Activity level</span>
           <div className="mt-1 space-y-1.5">
