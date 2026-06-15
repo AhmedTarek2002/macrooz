@@ -13,6 +13,7 @@ export function MealSection({
   onUpdateGrams,
   onDelete,
   onDuplicate,
+  onEdit,
 }: {
   meal: Meal;
   logs: FoodLog[];
@@ -20,6 +21,7 @@ export function MealSection({
   onUpdateGrams: (id: string, grams: number) => void;
   onDelete: (id: string) => void;
   onDuplicate: (log: FoodLog) => void;
+  onEdit: (log: FoodLog) => void;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: `meal-${meal}`, data: { meal } });
   const totals = sumLogs(logs);
