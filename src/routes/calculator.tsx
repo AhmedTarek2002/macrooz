@@ -11,6 +11,7 @@ import {
 import { AppShell } from "@/components/AppShell";
 import { useProfile } from "@/context/ProfileProvider";
 import { useWeightMutations } from "@/hooks/useData";
+import { todayStr } from "@/lib/nutrition";
 import { supabase } from "@/integrations/supabase/client";
 import {
   FORMULAS,
