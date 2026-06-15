@@ -1,9 +1,10 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { motion } from "motion/react";
-import { CalendarDays, LineChart, ClipboardCheck, BarChart3, Database } from "lucide-react";
+import { CalendarDays, Calculator, LineChart, ClipboardCheck, BarChart3, Database } from "lucide-react";
 
 const ITEMS = [
   { to: "/", label: "Today", icon: CalendarDays },
+  { to: "/calculator", label: "Calc", icon: Calculator },
   { to: "/weight", label: "Weight", icon: LineChart },
   { to: "/review", label: "Review", icon: ClipboardCheck },
   { to: "/reports", label: "Reports", icon: BarChart3 },
