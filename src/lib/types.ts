@@ -6,6 +6,14 @@ export type Profile = {
   current_weight: number | null;
   target_weight: number | null;
   diet_goal: "lose" | "gain" | "maintain";
+  sex: "male" | "female";
+  age: number | null;
+  height_cm: number | null;
+  body_fat_pct: number | null;
+  activity_level: number;
+  protein_per_kg: number;
+  fat_pct: number;
+  calc_formula: "mifflin" | "harris" | "katch";
   calorie_target: number;
   protein_target: number;
   carb_target: number;
