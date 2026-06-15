@@ -79,6 +79,8 @@ function CalculatorPage() {
   const { currentProfile, refetchProfiles } = useProfile();
   const navigate = useNavigate();
   const pid = currentProfile?.id ?? null;
+  const { upsert: upsertWeight } = useWeightMutations(pid);
+
 
   const [sex, setSex] = useState<"male" | "female">("male");
   const [age, setAge] = useState("");
