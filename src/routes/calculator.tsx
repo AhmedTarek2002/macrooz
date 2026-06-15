@@ -274,6 +274,26 @@ function CalculatorPage() {
             );
           })}
         </div>
+
+        {needsBodyFat && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            className="mt-3 rounded-xl border border-primary/40 bg-primary/5 p-3"
+          >
+            <NumField
+              label="Body fat %"
+              value={bodyFat}
+              onChange={setBodyFat}
+              step={0.1}
+              suffix="%"
+              placeholder="20"
+            />
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              Required for the Katch-McArdle formula.
+            </p>
+          </motion.div>
+        )}
       </section>
 
       {/* Advanced settings */}
