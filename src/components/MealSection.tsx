@@ -64,6 +64,7 @@ export function MealSection({
                 onUpdateGrams={onUpdateGrams}
                 onDelete={onDelete}
                 onDuplicate={onDuplicate}
+                onEdit={onEdit}
               />
             </motion.div>
           ))}
