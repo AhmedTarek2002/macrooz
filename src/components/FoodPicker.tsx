@@ -77,7 +77,8 @@ export function FoodPicker({
       <DrawerContent className="max-h-[88vh]">
         <DrawerHeader className="pb-2">
           <DrawerTitle className="flex items-center gap-2">
-            <span>{MEAL_META[meal].icon}</span> Add to {MEAL_META[meal].label}
+            <span>{MEAL_META[meal].icon}</span>{" "}
+            {isEdit ? `Edit · ${MEAL_META[meal].label}` : `Add to ${MEAL_META[meal].label}`}
           </DrawerTitle>
         </DrawerHeader>
 
