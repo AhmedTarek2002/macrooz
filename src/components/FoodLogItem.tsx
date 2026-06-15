@@ -10,11 +10,13 @@ export function FoodLogItem({
   onUpdateGrams,
   onDelete,
   onDuplicate,
+  onEdit,
 }: {
   log: FoodLog;
   onUpdateGrams: (id: string, grams: number) => void;
   onDelete: (id: string) => void;
   onDuplicate: (log: FoodLog) => void;
+  onEdit: (log: FoodLog) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: log.id,
