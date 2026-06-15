@@ -43,12 +43,14 @@ function ReviewPage() {
   const { upsert } = useReviewMutations(pid, date);
   const { data: logs = [] } = useFoodLogs(pid, date);
   const { data: weights = [] } = useWeightEntries(pid);
+  const { upsert: upsertWeight, remove: removeWeight } = useWeightMutations(pid);
 
   const [planned, setPlanned] = useState(false);
   const [completed, setCompleted] = useState(false);
   const [exAdh, setExAdh] = useState(0);
   const [dietAdh, setDietAdh] = useState(0);
   const [sleep, setSleep] = useState("");
+  const [weightInput, setWeightInput] = useState("");
 
   useEffect(() => {
     setPlanned(review?.exercise_planned ?? false);
@@ -61,6 +63,28 @@ function ReviewPage() {
   const totals = sumLogs(logs);
   const p = currentProfile!;
   const dayWeight = weights.find((w) => w.entry_date === date)?.weight;
+
+  useEffect(() => {
+    setWeightInput(dayWeight != null ? String(dayWeight) : "");
+  }, [dayWeight, date]);
+
+  const chartData = useMemo(
+    () => weights.map((e) => ({ date: e.entry_date.slice(5), weight: Number(e.weight) })),
+    [weights],
+  );
+  const firstW = weights[0]?.weight;
+  const lastW = weights[weights.length - 1]?.weight;
+  const delta = firstW != null && lastW != null ? Number(lastW) - Number(firstW) : 0;
+
+  const saveWeight = () => {
+    const w = Number(weightInput);
+    if (!w) return toast.error("Enter a weight");
+    upsertWeight.mutate(
+      { entry_date: date, weight: w },
+      { onSuccess: () => toast.success("Weight saved ✓") },
+    );
+  };
+
 
   const save = () => {
     upsert.mutate(
