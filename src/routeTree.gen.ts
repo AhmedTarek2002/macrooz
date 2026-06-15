@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WeightRouteImport } from './routes/weight'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ReviewRouteImport } from './routes/review'
 import { Route as ReportsRouteImport } from './routes/reports'
 import { Route as ProfileRouteImport } from './routes/profile'
@@ -19,6 +20,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const WeightRoute = WeightRouteImport.update({
   id: '/weight',
   path: '/weight',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReviewRoute = ReviewRouteImport.update({
@@ -53,6 +59,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/reports': typeof ReportsRoute
   '/review': typeof ReviewRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/weight': typeof WeightRoute
 }
 export interface FileRoutesByTo {
@@ -61,6 +68,7 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/reports': typeof ReportsRoute
   '/review': typeof ReviewRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/weight': typeof WeightRoute
 }
 export interface FileRoutesById {
@@ -70,13 +78,28 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/reports': typeof ReportsRoute
   '/review': typeof ReviewRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/weight': typeof WeightRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/foods' | '/profile' | '/reports' | '/review' | '/weight'
+  fullPaths:
+    | '/'
+    | '/foods'
+    | '/profile'
+    | '/reports'
+    | '/review'
+    | '/sitemap.xml'
+    | '/weight'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/foods' | '/profile' | '/reports' | '/review' | '/weight'
+  to:
+    | '/'
+    | '/foods'
+    | '/profile'
+    | '/reports'
+    | '/review'
+    | '/sitemap.xml'
+    | '/weight'
   id:
     | '__root__'
     | '/'
@@ -84,6 +107,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/reports'
     | '/review'
+    | '/sitemap.xml'
     | '/weight'
   fileRoutesById: FileRoutesById
 }
@@ -93,6 +117,7 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRoute
   ReportsRoute: typeof ReportsRoute
   ReviewRoute: typeof ReviewRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   WeightRoute: typeof WeightRoute
 }
 
@@ -103,6 +128,13 @@ declare module '@tanstack/react-router' {
       path: '/weight'
       fullPath: '/weight'
       preLoaderRoute: typeof WeightRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/review': {
@@ -149,6 +181,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRoute,
   ReportsRoute: ReportsRoute,
   ReviewRoute: ReviewRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   WeightRoute: WeightRoute,
 }
 export const routeTree = rootRouteImport
