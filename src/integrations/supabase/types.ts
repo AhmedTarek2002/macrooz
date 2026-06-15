@@ -203,52 +203,76 @@ export type Database = {
       }
       profiles: {
         Row: {
+          activity_level: number
+          age: number | null
+          body_fat_pct: number | null
+          calc_formula: string
           calorie_target: number
           carb_target: number
           color: string
           created_at: string
           current_weight: number | null
           diet_goal: string
+          fat_pct: number
           fat_target: number
           fiber_target: number
+          height_cm: number | null
           id: string
           name: string
           omega3_target: number
+          protein_per_kg: number
           protein_target: number
+          sex: string
           target_weight: number | null
           theme: string
           updated_at: string
         }
         Insert: {
+          activity_level?: number
+          age?: number | null
+          body_fat_pct?: number | null
+          calc_formula?: string
           calorie_target?: number
           carb_target?: number
           color?: string
           created_at?: string
           current_weight?: number | null
           diet_goal?: string
+          fat_pct?: number
           fat_target?: number
           fiber_target?: number
+          height_cm?: number | null
           id?: string
           name: string
           omega3_target?: number
+          protein_per_kg?: number
           protein_target?: number
+          sex?: string
           target_weight?: number | null
           theme?: string
           updated_at?: string
         }
         Update: {
+          activity_level?: number
+          age?: number | null
+          body_fat_pct?: number | null
+          calc_formula?: string
           calorie_target?: number
           carb_target?: number
           color?: string
           created_at?: string
           current_weight?: number | null
           diet_goal?: string
+          fat_pct?: number
           fat_target?: number
           fiber_target?: number
+          height_cm?: number | null
           id?: string
           name?: string
           omega3_target?: number
+          protein_per_kg?: number
           protein_target?: number
+          sex?: string
           target_weight?: number | null
           theme?: string
           updated_at?: string
