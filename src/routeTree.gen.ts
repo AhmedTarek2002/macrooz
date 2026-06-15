@@ -13,6 +13,7 @@ import { Route as WeightRouteImport } from './routes/weight'
 import { Route as ReviewRouteImport } from './routes/review'
 import { Route as ReportsRouteImport } from './routes/reports'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as FoodsRouteImport } from './routes/foods'
 import { Route as IndexRouteImport } from './routes/index'
 
 const WeightRoute = WeightRouteImport.update({
@@ -35,6 +36,11 @@ const ProfileRoute = ProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FoodsRoute = FoodsRouteImport.update({
+  id: '/foods',
+  path: '/foods',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -43,6 +49,7 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/foods': typeof FoodsRoute
   '/profile': typeof ProfileRoute
   '/reports': typeof ReportsRoute
   '/review': typeof ReviewRoute
@@ -50,6 +57,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/foods': typeof FoodsRoute
   '/profile': typeof ProfileRoute
   '/reports': typeof ReportsRoute
   '/review': typeof ReviewRoute
@@ -58,6 +66,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/foods': typeof FoodsRoute
   '/profile': typeof ProfileRoute
   '/reports': typeof ReportsRoute
   '/review': typeof ReviewRoute
@@ -65,14 +74,22 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/profile' | '/reports' | '/review' | '/weight'
+  fullPaths: '/' | '/foods' | '/profile' | '/reports' | '/review' | '/weight'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/profile' | '/reports' | '/review' | '/weight'
-  id: '__root__' | '/' | '/profile' | '/reports' | '/review' | '/weight'
+  to: '/' | '/foods' | '/profile' | '/reports' | '/review' | '/weight'
+  id:
+    | '__root__'
+    | '/'
+    | '/foods'
+    | '/profile'
+    | '/reports'
+    | '/review'
+    | '/weight'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  FoodsRoute: typeof FoodsRoute
   ProfileRoute: typeof ProfileRoute
   ReportsRoute: typeof ReportsRoute
   ReviewRoute: typeof ReviewRoute
@@ -109,6 +126,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/foods': {
+      id: '/foods'
+      path: '/foods'
+      fullPath: '/foods'
+      preLoaderRoute: typeof FoodsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -121,6 +145,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  FoodsRoute: FoodsRoute,
   ProfileRoute: ProfileRoute,
   ReportsRoute: ReportsRoute,
   ReviewRoute: ReviewRoute,
