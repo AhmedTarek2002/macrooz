@@ -204,7 +204,7 @@ export function FoodPicker({
               onClick={handleAdd}
               className="press mt-4 flex w-full items-center justify-center gap-2 rounded-xl gradient-hero py-3.5 font-bold text-primary-foreground"
             >
-              <Check className="h-5 w-5" /> Add {grams}g
+              <Check className="h-5 w-5" /> {isEdit ? "Save" : "Add"} {grams}g
             </button>
           </div>
         )}
