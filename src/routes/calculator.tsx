@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/collapsible";
 import { AppShell } from "@/components/AppShell";
 import { useProfile } from "@/context/ProfileProvider";
+import { useWeightMutations } from "@/hooks/useData";
 import { supabase } from "@/integrations/supabase/client";
 import {
   FORMULAS,
