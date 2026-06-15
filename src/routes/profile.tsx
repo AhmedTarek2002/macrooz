@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Save, Trash2 } from "lucide-react";
@@ -195,7 +195,7 @@ function GoalSection({
   title: string;
   defs: NutrientDef[];
   state: Record<string, { rda: string; ul: string }>;
-  setState: React.Dispatch<React.SetStateAction<Record<string, { rda: string; ul: string }>>>;
+  setState: Dispatch<SetStateAction<Record<string, { rda: string; ul: string }>>>;
 }) {
   return (
     <section className="rounded-2xl border bg-card p-4 shadow-card">
@@ -219,7 +219,7 @@ function FragmentRow({
 }: {
   def: NutrientDef;
   state: Record<string, { rda: string; ul: string }>;
-  setState: React.Dispatch<React.SetStateAction<Record<string, { rda: string; ul: string }>>>;
+  setState: Dispatch<SetStateAction<Record<string, { rda: string; ul: string }>>>;
 }) {
   const v = state[def.key] || { rda: "", ul: "" };
   const upd = (field: "rda" | "ul", val: string) =>

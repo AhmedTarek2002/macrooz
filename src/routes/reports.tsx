@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, type ReactNode } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -190,7 +190,7 @@ function ReportsPage() {
   );
 }
 
-function StatCard({ icon, label, value, unit, grad }: { icon: React.ReactNode; label: string; value: string; unit: string; grad: string }) {
+function StatCard({ icon, label, value, unit, grad }: { icon: ReactNode; label: string; value: string; unit: string; grad: string }) {
   return (
     <div className="rounded-2xl border bg-card p-3 shadow-card">
       <span className={`mb-2 flex h-8 w-8 items-center justify-center rounded-xl text-primary-foreground ${grad}`}>{icon}</span>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Dumbbell, Moon, Save, Salad } from "lucide-react";
@@ -170,7 +170,7 @@ function SliderRow({
   label: string;
   value: number;
   onChange: (v: number) => void;
-  icon: React.ReactNode;
+  icon: ReactNode;
 }) {
   return (
     <div className="mt-4">
