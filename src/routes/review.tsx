@@ -1,7 +1,16 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import {
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+} from "recharts";
 import { toast } from "sonner";
-import { Dumbbell, Moon, Save, Salad } from "lucide-react";
+import { Dumbbell, Moon, Save, Salad, Plus, Trash2, TrendingDown, TrendingUp } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { DateNav } from "@/components/DateNav";
 import { Slider } from "@/components/ui/slider";
@@ -11,6 +20,7 @@ import {
   useReviewMutations,
   useFoodLogs,
   useWeightEntries,
+  useWeightMutations,
 } from "@/hooks/useData";
 import { sumLogs, todayStr, fmt, macroStatus } from "@/lib/nutrition";
 import { StatusBadge } from "@/components/StatusBadge";
