@@ -167,11 +167,20 @@ function CalculatorPage() {
         fat_target: selected.fat,
       } as never)
       .eq("id", pid);
-    setSaving(false);
     if (error) {
+      setSaving(false);
       toast.error("Could not save targets");
       return;
     }
+    // Log today's weight straight into the tracker (shows up in Daily Review).
+    if (weight) {
+      try {
+        await upsertWeight.mutateAsync({ entry_date: todayStr(), weight: Number(weight) });
+      } catch {
+        /* non-fatal */
+      }
+    }
+    setSaving(false);
     refetchProfiles();
     toast.success("Targets applied ✓ Now build your day");
     navigate({ to: "/" });
