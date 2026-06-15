@@ -43,6 +43,7 @@ function TodayPage() {
   const [date, setDate] = useState(todayStr());
   const [tab, setTab] = useState<"meals" | "micros">("meals");
   const [pickerMeal, setPickerMeal] = useState<Meal | null>(null);
+  const [editLog, setEditLog] = useState<FoodLog | null>(null);
   const mealsRef = useRef<HTMLDivElement>(null);
 
   const { data: logs = [] } = useFoodLogs(pid, date);
