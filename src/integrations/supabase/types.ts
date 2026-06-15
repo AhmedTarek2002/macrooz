@@ -14,7 +14,279 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      daily_reviews: {
+        Row: {
+          created_at: string
+          diet_adherence: number | null
+          exercise_adherence: number | null
+          exercise_completed: boolean | null
+          exercise_planned: boolean
+          id: string
+          notes: string | null
+          profile_id: string
+          review_date: string
+          sleep_hours: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          diet_adherence?: number | null
+          exercise_adherence?: number | null
+          exercise_completed?: boolean | null
+          exercise_planned?: boolean
+          id?: string
+          notes?: string | null
+          profile_id: string
+          review_date?: string
+          sleep_hours?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          diet_adherence?: number | null
+          exercise_adherence?: number | null
+          exercise_completed?: boolean | null
+          exercise_planned?: boolean
+          id?: string
+          notes?: string | null
+          profile_id?: string
+          review_date?: string
+          sleep_hours?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_reviews_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      food_logs: {
+        Row: {
+          created_at: string
+          food_id: string | null
+          food_snapshot: Json
+          grams: number
+          id: string
+          log_date: string
+          meal: string
+          position: number
+          profile_id: string
+        }
+        Insert: {
+          created_at?: string
+          food_id?: string | null
+          food_snapshot?: Json
+          grams?: number
+          id?: string
+          log_date?: string
+          meal?: string
+          position?: number
+          profile_id: string
+        }
+        Update: {
+          created_at?: string
+          food_id?: string | null
+          food_snapshot?: Json
+          grams?: number
+          id?: string
+          log_date?: string
+          meal?: string
+          position?: number
+          profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "food_logs_food_id_fkey"
+            columns: ["food_id"]
+            isOneToOne: false
+            referencedRelation: "foods"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "food_logs_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      foods: {
+        Row: {
+          calories: number
+          carbs: number
+          category: string
+          created_at: string
+          fat: number
+          fiber: number
+          icon: string
+          id: string
+          micros: Json
+          name: string
+          omega3: number
+          protein: number
+          updated_at: string
+        }
+        Insert: {
+          calories?: number
+          carbs?: number
+          category?: string
+          created_at?: string
+          fat?: number
+          fiber?: number
+          icon?: string
+          id?: string
+          micros?: Json
+          name: string
+          omega3?: number
+          protein?: number
+          updated_at?: string
+        }
+        Update: {
+          calories?: number
+          carbs?: number
+          category?: string
+          created_at?: string
+          fat?: number
+          fiber?: number
+          icon?: string
+          id?: string
+          micros?: Json
+          name?: string
+          omega3?: number
+          protein?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      nutrient_goals: {
+        Row: {
+          created_at: string
+          id: string
+          nutrient_key: string
+          profile_id: string
+          rda: number | null
+          updated_at: string
+          upper_limit: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          nutrient_key: string
+          profile_id: string
+          rda?: number | null
+          updated_at?: string
+          upper_limit?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nutrient_key?: string
+          profile_id?: string
+          rda?: number | null
+          updated_at?: string
+          upper_limit?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nutrient_goals_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          calorie_target: number
+          carb_target: number
+          color: string
+          created_at: string
+          current_weight: number | null
+          diet_goal: string
+          fat_target: number
+          fiber_target: number
+          id: string
+          name: string
+          omega3_target: number
+          protein_target: number
+          target_weight: number | null
+          theme: string
+          updated_at: string
+        }
+        Insert: {
+          calorie_target?: number
+          carb_target?: number
+          color?: string
+          created_at?: string
+          current_weight?: number | null
+          diet_goal?: string
+          fat_target?: number
+          fiber_target?: number
+          id?: string
+          name: string
+          omega3_target?: number
+          protein_target?: number
+          target_weight?: number | null
+          theme?: string
+          updated_at?: string
+        }
+        Update: {
+          calorie_target?: number
+          carb_target?: number
+          color?: string
+          created_at?: string
+          current_weight?: number | null
+          diet_goal?: string
+          fat_target?: number
+          fiber_target?: number
+          id?: string
+          name?: string
+          omega3_target?: number
+          protein_target?: number
+          target_weight?: number | null
+          theme?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      weight_entries: {
+        Row: {
+          created_at: string
+          entry_date: string
+          id: string
+          profile_id: string
+          weight: number
+        }
+        Insert: {
+          created_at?: string
+          entry_date?: string
+          id?: string
+          profile_id: string
+          weight: number
+        }
+        Update: {
+          created_at?: string
+          entry_date?: string
+          id?: string
+          profile_id?: string
+          weight?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "weight_entries_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
