@@ -182,6 +182,7 @@ function TodayPage() {
                 onUpdateGrams={(id, grams) => update.mutate({ id, grams })}
                 onDelete={(id) => remove.mutate(id)}
                 onDuplicate={handleDuplicate}
+                onEdit={(log) => setEditLog(log)}
               />
             ))}
           </div>
@@ -196,6 +197,26 @@ function TodayPage() {
           open={!!pickerMeal}
           onOpenChange={(o) => !o && setPickerMeal(null)}
           onAdd={(food, grams) => handleAdd(food, grams, pickerMeal)}
+        />
+      )}
+
+      {editLog && (
+        <FoodPicker
+          meal={editLog.meal as Meal}
+          open={!!editLog}
+          editLog={editLog}
+          onOpenChange={(o) => !o && setEditLog(null)}
+          onAdd={() => {}}
+          onUpdate={(food, grams) => {
+            update.mutate({
+              id: editLog.id,
+              grams,
+              food_id: food.id,
+              food_snapshot: foodToSnapshot(food),
+            });
+            toast.success("Item updated");
+            setEditLog(null);
+          }}
         />
       )}
     </div>
