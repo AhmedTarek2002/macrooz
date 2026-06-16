@@ -36,6 +36,13 @@ function addDays(d: string, n: number) {
   return dt.toISOString().slice(0, 10);
 }
 
+type DayDetail = {
+  date: string;
+  logs: FoodLog[];
+  review?: DailyReview;
+  weight?: number;
+};
+
 function ReportsPage() {
   const { currentProfile } = useProfile();
   const pid = currentProfile?.id ?? null;
