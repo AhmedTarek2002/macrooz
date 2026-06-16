@@ -1,8 +1,9 @@
 import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { Save, Trash2 } from "lucide-react";
+import { Save, Trash2, Database } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import { CalculatorSection } from "@/components/CalculatorSection";
 import { useProfile } from "@/context/ProfileProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { useNutrientGoals, useNutrientGoalMutations } from "@/hooks/useData";
