@@ -17,7 +17,7 @@ import { ChevronDown, Download, Flame, Moon, Dumbbell, Salad, Scale } from "luci
 import { AppShell } from "@/components/AppShell";
 import { useProfile } from "@/context/ProfileProvider";
 import { supabase } from "@/integrations/supabase/client";
-import { MEALS, MEAL_LABELS } from "@/lib/nutrients";
+import { MEALS, MEAL_META } from "@/lib/nutrients";
 import { sumLogs, scaleSnapshot, todayStr, fmt } from "@/lib/nutrition";
 import type { DailyReview, FoodLog, WeightEntry } from "@/lib/types";
 
