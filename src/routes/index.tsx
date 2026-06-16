@@ -235,3 +235,76 @@ function TodayPage() {
     </div>
   );
 }
+
+function WeightCard({
+  weight,
+  onSave,
+}: {
+  weight: number | null;
+  onSave: (w: number) => void;
+}) {
+  const [editing, setEditing] = useState(weight == null);
+  const [value, setValue] = useState(weight != null ? String(weight) : "");
+
+  useEffect(() => {
+    setValue(weight != null ? String(weight) : "");
+    setEditing(weight == null);
+  }, [weight]);
+
+  const save = () => {
+    const w = Number(value);
+    if (!w) {
+      toast.error("Enter a weight");
+      return;
+    }
+    onSave(w);
+    setEditing(false);
+  };
+
+  return (
+    <div className="rounded-2xl border bg-card p-4 shadow-card">
+      <div className="mb-2 flex items-center gap-2">
+        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted text-primary">
+          <Scale className="h-4 w-4" />
+        </span>
+        <h2 className="text-sm font-bold">Morning Weigh-in</h2>
+      </div>
+
+      {editing ? (
+        <div className="flex gap-2">
+          <div className="relative flex-1">
+            <input
+              type="number"
+              inputMode="decimal"
+              step={0.1}
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              placeholder="Weight"
+              className="w-full rounded-xl border bg-background px-3 py-2.5 outline-none focus:ring-2 focus:ring-ring"
+            />
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">kg</span>
+          </div>
+          <button
+            onClick={save}
+            className="press flex items-center justify-center rounded-xl gradient-hero px-4 text-primary-foreground"
+            aria-label="Save weight"
+          >
+            <Check className="h-5 w-5" />
+          </button>
+        </div>
+      ) : (
+        <div className="flex items-center justify-between">
+          <p className="text-lg font-extrabold leading-none">
+            {fmt(Number(weight), 1)} <span className="text-xs font-medium text-muted-foreground">kg</span>
+          </p>
+          <button
+            onClick={() => setEditing(true)}
+            className="press flex items-center gap-1.5 rounded-full border bg-card px-3 py-1.5 text-xs font-semibold"
+          >
+            <Pencil className="h-3.5 w-3.5" /> Edit
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
