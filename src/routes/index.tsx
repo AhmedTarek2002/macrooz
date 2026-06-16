@@ -128,6 +128,17 @@ function TodayPage() {
     <div className="space-y-3">
       <DateNav date={date} onChange={setDate} />
 
+      {/* Morning weigh-in */}
+      <WeightCard
+        weight={weights.find((w) => w.entry_date === date)?.weight ?? null}
+        onSave={(w) =>
+          upsertWeight.mutate(
+            { entry_date: date, weight: w },
+            { onSuccess: () => toast.success("Weight saved ✓") },
+          )
+        }
+      />
+
       {/* Macro summary */}
       <div className="rounded-2xl border bg-card p-4 shadow-card">
         <div className="mb-3 flex items-center justify-between">
