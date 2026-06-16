@@ -18,7 +18,7 @@ import { FoodPicker } from "@/components/FoodPicker";
 import { MicrosList } from "@/components/MicrosList";
 import { ProgressRing } from "@/components/ProgressRing";
 import { useProfile } from "@/context/ProfileProvider";
-import { useFoodLogs, useFoodLogMutations, useNutrientGoals } from "@/hooks/useData";
+import { useFoodLogs, useFoodLogMutations, useNutrientGoals, useWeightEntries, useWeightMutations } from "@/hooks/useData";
 import { MEALS, type Meal } from "@/lib/nutrients";
 import { sumLogs, foodToSnapshot, goalsMap, todayStr, fmt, round } from "@/lib/nutrition";
 import type { Food, FoodLog } from "@/lib/types";
