@@ -1,8 +1,9 @@
 import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { Save, Trash2 } from "lucide-react";
+import { Save, Trash2, Database } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import { CalculatorSection } from "@/components/CalculatorSection";
 import { useProfile } from "@/context/ProfileProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { useNutrientGoals, useNutrientGoalMutations } from "@/hooks/useData";
@@ -118,9 +119,33 @@ function ProfilePage() {
 
   if (!currentProfile) return null;
 
+  const lastUpdated = currentProfile.updated_at
+    ? new Date(currentProfile.updated_at).toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      })
+    : "—";
+
   return (
     <div className="space-y-4">
+      {/* Calorie & Macro Calculator */}
+      <div>
+        <h2 className="font-bold">Calorie &amp; Macro Calculator</h2>
+        <p className="mb-3 text-[11px] text-muted-foreground">Last updated: {lastUpdated}</p>
+        <CalculatorSection />
+      </div>
+
+      {/* Manage foods */}
+      <Link
+        to="/foods"
+        className="press flex w-full items-center justify-center gap-2 rounded-xl border bg-card py-3.5 font-bold shadow-card"
+      >
+        <Database className="h-5 w-5 text-primary" /> Manage Foods
+      </Link>
+
       <section className="rounded-2xl border bg-card p-4 shadow-card">
+
         <h2 className="mb-3 font-bold">Profile</h2>
         <label className="block">
           <span className="text-xs font-medium text-muted-foreground">Name</span>

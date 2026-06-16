@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import {
   DndContext,
@@ -10,7 +10,7 @@ import {
 } from "@dnd-kit/core";
 import { toast } from "sonner";
 import { toPng } from "html-to-image";
-import { Download, Flame } from "lucide-react";
+import { Download, Flame, Scale, Pencil, Check } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { DateNav } from "@/components/DateNav";
 import { MealSection } from "@/components/MealSection";
@@ -18,7 +18,7 @@ import { FoodPicker } from "@/components/FoodPicker";
 import { MicrosList } from "@/components/MicrosList";
 import { ProgressRing } from "@/components/ProgressRing";
 import { useProfile } from "@/context/ProfileProvider";
-import { useFoodLogs, useFoodLogMutations, useNutrientGoals } from "@/hooks/useData";
+import { useFoodLogs, useFoodLogMutations, useNutrientGoals, useWeightEntries, useWeightMutations } from "@/hooks/useData";
 import { MEALS, type Meal } from "@/lib/nutrients";
 import { sumLogs, foodToSnapshot, goalsMap, todayStr, fmt, round } from "@/lib/nutrition";
 import type { Food, FoodLog } from "@/lib/types";
@@ -49,6 +49,8 @@ function TodayPage() {
   const { data: logs = [] } = useFoodLogs(pid, date);
   const { data: goals = [] } = useNutrientGoals(pid);
   const { add, update, remove } = useFoodLogMutations(pid, date);
+  const { data: weights = [] } = useWeightEntries(pid);
+  const { upsert: upsertWeight } = useWeightMutations(pid);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -125,6 +127,17 @@ function TodayPage() {
   return (
     <div className="space-y-3">
       <DateNav date={date} onChange={setDate} />
+
+      {/* Morning weigh-in */}
+      <WeightCard
+        weight={weights.find((w) => w.entry_date === date)?.weight ?? null}
+        onSave={(w) =>
+          upsertWeight.mutate(
+            { entry_date: date, weight: w },
+            { onSuccess: () => toast.success("Weight saved ✓") },
+          )
+        }
+      />
 
       {/* Macro summary */}
       <div className="rounded-2xl border bg-card p-4 shadow-card">
@@ -218,6 +231,79 @@ function TodayPage() {
             setEditLog(null);
           }}
         />
+      )}
+    </div>
+  );
+}
+
+function WeightCard({
+  weight,
+  onSave,
+}: {
+  weight: number | null;
+  onSave: (w: number) => void;
+}) {
+  const [editing, setEditing] = useState(weight == null);
+  const [value, setValue] = useState(weight != null ? String(weight) : "");
+
+  useEffect(() => {
+    setValue(weight != null ? String(weight) : "");
+    setEditing(weight == null);
+  }, [weight]);
+
+  const save = () => {
+    const w = Number(value);
+    if (!w) {
+      toast.error("Enter a weight");
+      return;
+    }
+    onSave(w);
+    setEditing(false);
+  };
+
+  return (
+    <div className="rounded-2xl border bg-card p-4 shadow-card">
+      <div className="mb-2 flex items-center gap-2">
+        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted text-primary">
+          <Scale className="h-4 w-4" />
+        </span>
+        <h2 className="text-sm font-bold">Morning Weigh-in</h2>
+      </div>
+
+      {editing ? (
+        <div className="flex gap-2">
+          <div className="relative flex-1">
+            <input
+              type="number"
+              inputMode="decimal"
+              step={0.1}
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              placeholder="Weight"
+              className="w-full rounded-xl border bg-background px-3 py-2.5 outline-none focus:ring-2 focus:ring-ring"
+            />
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">kg</span>
+          </div>
+          <button
+            onClick={save}
+            className="press flex items-center justify-center rounded-xl gradient-hero px-4 text-primary-foreground"
+            aria-label="Save weight"
+          >
+            <Check className="h-5 w-5" />
+          </button>
+        </div>
+      ) : (
+        <div className="flex items-center justify-between">
+          <p className="text-lg font-extrabold leading-none">
+            {fmt(Number(weight), 1)} <span className="text-xs font-medium text-muted-foreground">kg</span>
+          </p>
+          <button
+            onClick={() => setEditing(true)}
+            className="press flex items-center gap-1.5 rounded-full border bg-card px-3 py-1.5 text-xs font-semibold"
+          >
+            <Pencil className="h-3.5 w-3.5" /> Edit
+          </button>
+        </div>
       )}
     </div>
   );
