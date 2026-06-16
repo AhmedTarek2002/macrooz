@@ -59,10 +59,6 @@ function ReviewPage() {
     setWeightInput(dayWeight != null ? String(dayWeight) : "");
   }, [dayWeight, date]);
 
-  const chartData = useMemo(
-    () => weights.map((e) => ({ date: e.entry_date.slice(5), weight: Number(e.weight) })),
-    [weights],
-  );
   const firstW = weights[0]?.weight;
   const lastW = weights[weights.length - 1]?.weight;
   const delta = firstW != null && lastW != null ? Number(lastW) - Number(firstW) : 0;
