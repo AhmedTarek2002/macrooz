@@ -153,24 +153,6 @@ function ReviewPage() {
           </button>
         </div>
 
-        {chartData.length === 0 ? (
-          <p className="py-8 text-center text-sm text-muted-foreground">No weight entries yet.</p>
-        ) : (
-          <div className="mt-4">
-            <ResponsiveContainer width="100%" height={200}>
-              <LineChart data={chartData} margin={{ top: 5, right: 8, left: -18, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                <XAxis dataKey="date" tick={{ fontSize: 10, fill: "var(--muted-foreground)" }} />
-                <YAxis domain={["auto", "auto"]} tick={{ fontSize: 10, fill: "var(--muted-foreground)" }} />
-                <Tooltip
-                  contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: 12, fontSize: 12 }}
-                />
-                <Line type="monotone" dataKey="weight" stroke="var(--primary)" strokeWidth={3} dot={{ r: 3, fill: "var(--primary)" }} activeDot={{ r: 5 }} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        )}
-
         {weights.length > 0 && (
           <div className="mt-3 space-y-1">
             {[...weights].reverse().slice(0, 6).map((e) => (
