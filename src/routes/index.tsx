@@ -49,6 +49,8 @@ function TodayPage() {
   const { data: logs = [] } = useFoodLogs(pid, date);
   const { data: goals = [] } = useNutrientGoals(pid);
   const { add, update, remove } = useFoodLogMutations(pid, date);
+  const { data: weights = [] } = useWeightEntries(pid);
+  const { upsert: upsertWeight } = useWeightMutations(pid);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
