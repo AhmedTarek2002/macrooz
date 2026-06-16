@@ -43,6 +43,7 @@ function ReportsPage() {
 
   const [to, setTo] = useState(todayStr());
   const [from, setFrom] = useState(addDays(todayStr(), -29));
+  const [openDay, setOpenDay] = useState<string | null>(null);
 
   const { data } = useQuery({
     queryKey: ["report", pid, from, to],
