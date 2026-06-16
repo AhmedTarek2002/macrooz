@@ -1,13 +1,12 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { motion } from "motion/react";
-import { CalendarDays, Calculator, ClipboardCheck, BarChart3, Database } from "lucide-react";
+import { CalendarDays, ClipboardCheck, BarChart3, User } from "lucide-react";
 
 const ITEMS = [
   { to: "/", label: "Today", icon: CalendarDays },
-  { to: "/calculator", label: "Calc", icon: Calculator },
   { to: "/review", label: "Review", icon: ClipboardCheck },
   { to: "/reports", label: "Reports", icon: BarChart3 },
-  { to: "/foods", label: "Foods", icon: Database },
+  { to: "/profile", label: "Profile", icon: User },
 ] as const;
 
 export function BottomNav() {
