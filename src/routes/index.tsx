@@ -10,7 +10,7 @@ import {
 } from "@dnd-kit/core";
 import { toast } from "sonner";
 import { toPng } from "html-to-image";
-import { Download, Flame } from "lucide-react";
+import { Download, Flame, Scale, Pencil, Check } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { DateNav } from "@/components/DateNav";
 import { MealSection } from "@/components/MealSection";
