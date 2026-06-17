@@ -13,12 +13,11 @@ import {
   YAxis,
 } from "recharts";
 import { toPng } from "html-to-image";
-import { ChevronDown, Download, Flame, Moon, Dumbbell, Salad, Scale } from "lucide-react";
+import { Download, Flame, Moon, Dumbbell, Salad } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { useProfile } from "@/context/ProfileProvider";
 import { supabase } from "@/integrations/supabase/client";
-import { MEALS, MEAL_META } from "@/lib/nutrients";
-import { sumLogs, scaleSnapshot, todayStr, fmt } from "@/lib/nutrition";
+import { sumLogs, todayStr, fmt } from "@/lib/nutrition";
 import type { DailyReview, FoodLog, WeightEntry } from "@/lib/types";
 
 export const Route = createFileRoute("/reports")({
@@ -36,12 +35,8 @@ function addDays(d: string, n: number) {
   return dt.toISOString().slice(0, 10);
 }
 
-type DayDetail = {
-  date: string;
-  logs: FoodLog[];
-  review?: DailyReview;
-  weight?: number;
-};
+
+
 
 function ReportsPage() {
   const { currentProfile } = useProfile();
@@ -50,7 +45,7 @@ function ReportsPage() {
 
   const [to, setTo] = useState(todayStr());
   const [from, setFrom] = useState(addDays(todayStr(), -29));
-  const [openDay, setOpenDay] = useState<string | null>(null);
+  
 
   const { data } = useQuery({
     queryKey: ["report", pid, from, to],
@@ -99,16 +94,8 @@ function ReportsPage() {
     };
   }, [data]);
 
-  const days = useMemo<DayDetail[]>(() => {
-    if (!data) return [];
-    const map: Record<string, DayDetail> = {};
-    const ensure = (d: string) =>
-      (map[d] ||= { date: d, logs: [], review: undefined, weight: undefined });
-    for (const l of data.logs) ensure(l.log_date).logs.push(l);
-    for (const r of data.reviews) ensure(r.review_date).review = r;
-    for (const w of data.weights) ensure(w.entry_date).weight = Number(w.weight);
-    return Object.values(map).sort((a, b) => b.date.localeCompare(a.date));
-  }, [data]);
+
+
 
   const exportReport = async () => {
     if (!chartRef.current) return;
@@ -203,24 +190,6 @@ function ReportsPage() {
         )}
       </div>
 
-      {/* Day-by-day history */}
-      <section className="space-y-2">
-        <h2 className="px-1 font-bold">Day by day</h2>
-        {days.length === 0 ? (
-          <p className="rounded-2xl border bg-card py-8 text-center text-sm text-muted-foreground shadow-card">
-            No data in this range yet.
-          </p>
-        ) : (
-          days.map((d) => (
-            <DayCard
-              key={d.date}
-              day={d}
-              open={openDay === d.date}
-              onToggle={() => setOpenDay((cur) => (cur === d.date ? null : d.date))}
-            />
-          ))
-        )}
-      </section>
 
       <p className="pb-2 text-center text-xs text-muted-foreground">
         Based on {stats?.loggedDays ?? 0} logged day(s). Updates automatically when you edit any day.
@@ -229,97 +198,7 @@ function ReportsPage() {
   );
 }
 
-function DayCard({ day, open, onToggle }: { day: DayDetail; open: boolean; onToggle: () => void }) {
-  const totals = sumLogs(day.logs);
-  const r = day.review;
-  const dateLabel = new Date(day.date + "T00:00:00").toLocaleDateString(undefined, {
-    weekday: "long",
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
 
-  const byMeal = MEALS.map((m) => ({
-    meal: m,
-    items: day.logs.filter((l) => l.meal === m),
-  })).filter((g) => g.items.length > 0);
-
-  return (
-    <div className="overflow-hidden rounded-2xl border bg-card shadow-card">
-      <button onClick={onToggle} className="press flex w-full items-center justify-between gap-2 p-4 text-left">
-        <div className="min-w-0">
-          <p className="truncate font-bold">{dateLabel}</p>
-          <p className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1"><Flame className="h-3 w-3" /> {fmt(totals.calories)} kcal</span>
-            {r?.sleep_hours != null && <span className="flex items-center gap-1"><Moon className="h-3 w-3" /> {fmt(r.sleep_hours, 1)} h</span>}
-            {day.weight != null && <span className="flex items-center gap-1"><Scale className="h-3 w-3" /> {fmt(day.weight, 1)} kg</span>}
-          </p>
-        </div>
-        <ChevronDown className={`h-5 w-5 shrink-0 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
-      </button>
-
-      {open && (
-        <div className="space-y-3 border-t px-4 pb-4 pt-3">
-          {/* Macro totals */}
-          <div className="grid grid-cols-4 gap-2 text-center">
-            {([["Cal", totals.calories, "cal"], ["Protein", totals.protein, "protein"], ["Carbs", totals.carbs, "carbs"], ["Fat", totals.fat, "fat"]] as const).map(([l, v, c]) => (
-              <div key={l} className="rounded-xl bg-muted/60 py-2">
-                <p className={`text-sm font-bold text-${c}`}>{fmt(v)}</p>
-                <p className="text-[10px] text-muted-foreground">{l}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Meals */}
-          {byMeal.length > 0 ? (
-            <div className="space-y-2">
-              {byMeal.map((g) => (
-                <div key={g.meal}>
-                  <p className="mb-1 text-xs font-semibold text-muted-foreground">
-                    {MEAL_META[g.meal].icon} {MEAL_META[g.meal].label}
-                  </p>
-                  <div className="space-y-1">
-                    {g.items.map((l) => {
-                      const s = scaleSnapshot(l.food_snapshot, l.grams);
-                      return (
-                        <div key={l.id} className="flex items-center justify-between gap-2 text-sm">
-                          <span className="min-w-0 truncate">{l.food_snapshot.icon} {l.food_snapshot.name}</span>
-                          <span className="shrink-0 tabular-nums text-muted-foreground">
-                            {fmt(l.grams)}g · {fmt(s.calories)} kcal
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">No meals logged.</p>
-          )}
-
-          {/* Review details */}
-          {r && (
-            <div className="grid grid-cols-2 gap-2 border-t pt-3 text-sm">
-              {r.sleep_hours != null && (
-                <span className="flex items-center gap-2"><Moon className="h-4 w-4 text-primary" /> {fmt(r.sleep_hours, 1)} h sleep</span>
-              )}
-              {r.exercise_adherence != null && (
-                <span className="flex items-center gap-2"><Dumbbell className="h-4 w-4 text-primary" /> {fmt(r.exercise_adherence)}% exercise</span>
-              )}
-              {r.diet_adherence != null && (
-                <span className="flex items-center gap-2"><Salad className="h-4 w-4 text-primary" /> {fmt(r.diet_adherence)}% diet</span>
-              )}
-              {day.weight != null && (
-                <span className="flex items-center gap-2"><Scale className="h-4 w-4 text-primary" /> {fmt(day.weight, 1)} kg</span>
-              )}
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
 
 function StatCard({ icon, label, value, unit, grad }: { icon: ReactNode; label: string; value: string; unit: string; grad: string }) {
   return (
