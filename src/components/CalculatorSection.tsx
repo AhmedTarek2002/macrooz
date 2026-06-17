@@ -319,9 +319,31 @@ export function CalculatorSection() {
               step={1}
               suffix="%"
             />
+            {goal === "gain" && (
+              <NumField
+                label="Caloric Surplus"
+                value={calorieAdjust}
+                onChange={setCalorieAdjust}
+                step={50}
+                suffix="kcal"
+                placeholder="500"
+              />
+            )}
+            {goal === "lose" && (
+              <NumField
+                label="Caloric Deficit"
+                value={calorieAdjust}
+                onChange={setCalorieAdjust}
+                step={50}
+                suffix="kcal"
+                placeholder="500"
+              />
+            )}
             <p className="text-[11px] text-muted-foreground">
               Protein defaults to 2 g/kg and fat to 25% of calories. Carbs fill the
               remaining calories automatically.
+              {goal === "gain" && " Surplus is added on top of your TDEE."}
+              {goal === "lose" && " Deficit is subtracted from your TDEE."}
             </p>
           </div>
         </CollapsibleContent>
