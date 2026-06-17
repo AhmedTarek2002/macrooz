@@ -52,10 +52,11 @@ export const ACTIVITY_LEVELS = [
   { value: 1.9, label: "Very active", desc: "Hard exercise + physical job" },
 ] as const;
 
-export const GOAL_ADJUST: Record<CalcInput["goal"], number> = {
-  lose: -500,
+// Sign multiplier per goal; the magnitude comes from CalcInput.calorie_adjust.
+export const GOAL_SIGN: Record<CalcInput["goal"], number> = {
+  lose: -1,
   maintain: 0,
-  gain: 300,
+  gain: 1,
 };
 
 // Returns BMR (basal metabolic rate) in kcal/day, or null if inputs are insufficient.
