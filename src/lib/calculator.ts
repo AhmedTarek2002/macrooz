@@ -93,7 +93,7 @@ export function computeMacros(formula: FormulaKey, i: CalcInput): MacroResult | 
   if (bmr == null) return null;
 
   const tdee = bmr * i.activity_level;
-  const calories = Math.max(0, tdee + GOAL_ADJUST[i.goal]);
+  const calories = Math.max(0, tdee + GOAL_SIGN[i.goal] * (i.calorie_adjust || 0));
 
   const protein = i.protein_per_kg * i.weight_kg;
   const proteinCals = protein * 4;
