@@ -145,6 +145,7 @@ export function CalculatorSection() {
         calc_formula: formula,
         protein_per_kg: Number(proteinPerKg) || 2,
         fat_pct: Number(fatPct) || 25,
+        calorie_adjust: Number(calorieAdjust) || 0,
         calorie_target: selected.calories,
         protein_target: selected.protein,
         carb_target: selected.carbs,
