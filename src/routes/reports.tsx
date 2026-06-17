@@ -203,24 +203,6 @@ function ReportsPage() {
         )}
       </div>
 
-      {/* Day-by-day history */}
-      <section className="space-y-2">
-        <h2 className="px-1 font-bold">Day by day</h2>
-        {days.length === 0 ? (
-          <p className="rounded-2xl border bg-card py-8 text-center text-sm text-muted-foreground shadow-card">
-            No data in this range yet.
-          </p>
-        ) : (
-          days.map((d) => (
-            <DayCard
-              key={d.date}
-              day={d}
-              open={openDay === d.date}
-              onToggle={() => setOpenDay((cur) => (cur === d.date ? null : d.date))}
-            />
-          ))
-        )}
-      </section>
 
       <p className="pb-2 text-center text-xs text-muted-foreground">
         Based on {stats?.loggedDays ?? 0} logged day(s). Updates automatically when you edit any day.
