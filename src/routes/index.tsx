@@ -240,6 +240,156 @@ function TodayPage() {
           }}
         />
       )}
+
+      {/* End of Day Check-in */}
+      <CheckinCard
+        key={date}
+        review={review ?? null}
+        onSave={(payload) =>
+          upsertReview.mutate(payload, {
+            onSuccess: () => toast.success("Check-in saved ✓"),
+            onError: () => toast.error("Could not save check-in"),
+          })
+        }
+      />
+    </div>
+  );
+}
+
+function CheckinCard({
+  review,
+  onSave,
+}: {
+  review: DailyReview | null;
+  onSave: (payload: Partial<DailyReview>) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [sleep, setSleep] = useState(review?.sleep_hours != null ? Number(review.sleep_hours) : 7);
+  const [diet, setDiet] = useState(review?.diet_adherence != null ? Number(review.diet_adherence) : 100);
+  const [planned, setPlanned] = useState(review?.exercise_planned ?? false);
+  const [completed, setCompleted] = useState(review?.exercise_completed ?? false);
+  const [exAdherence, setExAdherence] = useState(
+    review?.exercise_adherence != null ? Number(review.exercise_adherence) : 100,
+  );
+
+  const save = () => {
+    onSave({
+      sleep_hours: sleep,
+      diet_adherence: diet,
+      exercise_planned: planned,
+      exercise_completed: planned ? completed : null,
+      exercise_adherence: planned ? exAdherence : null,
+    });
+  };
+
+  return (
+    <Collapsible open={open} onOpenChange={setOpen}>
+      <CollapsibleTrigger className="press flex w-full items-center justify-between rounded-2xl border bg-card p-4 shadow-card">
+        <span className="flex items-center gap-2 font-bold">
+          <Moon className="h-4 w-4 text-primary" /> End of Day Check-in
+        </span>
+        <ChevronDown
+          className={`h-5 w-5 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`}
+        />
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        <div className="mt-2 space-y-5 rounded-2xl border bg-card p-4 shadow-card">
+          {/* Sleep */}
+          <div>
+            <div className="mb-2 flex items-center justify-between">
+              <span className="flex items-center gap-2 text-sm font-semibold">
+                <Moon className="h-4 w-4 text-primary" /> Hours of sleep
+              </span>
+              <span className="text-sm font-bold tabular-nums">{sleep.toFixed(1)} h</span>
+            </div>
+            <Slider
+              min={0}
+              max={12}
+              step={0.5}
+              value={[sleep]}
+              onValueChange={(v) => setSleep(v[0])}
+            />
+          </div>
+
+          {/* Diet adherence */}
+          <div>
+            <div className="mb-2 flex items-center justify-between">
+              <span className="flex items-center gap-2 text-sm font-semibold">
+                <Salad className="h-4 w-4 text-primary" /> Diet adherence
+              </span>
+              <span className="text-sm font-bold tabular-nums">{diet}%</span>
+            </div>
+            <Slider
+              min={0}
+              max={100}
+              step={1}
+              value={[diet]}
+              onValueChange={(v) => setDiet(v[0])}
+            />
+          </div>
+
+          {/* Exercise planned */}
+          <div>
+            <span className="flex items-center gap-2 text-sm font-semibold">
+              <Dumbbell className="h-4 w-4 text-primary" /> Exercise planned today?
+            </span>
+            <YesNo value={planned} onChange={setPlanned} />
+          </div>
+
+          {planned && (
+            <div className="space-y-5 rounded-xl border border-primary/30 bg-primary/5 p-3">
+              <div>
+                <span className="text-sm font-semibold">Did you complete it?</span>
+                <YesNo
+                  value={completed}
+                  onChange={(v) => {
+                    setCompleted(v);
+                    setExAdherence(v ? 100 : 0);
+                  }}
+                />
+              </div>
+              <div>
+                <div className="mb-2 flex items-center justify-between">
+                  <span className="text-sm font-semibold">Exercise adherence</span>
+                  <span className="text-sm font-bold tabular-nums">{exAdherence}%</span>
+                </div>
+                <Slider
+                  min={0}
+                  max={100}
+                  step={1}
+                  value={[exAdherence]}
+                  onValueChange={(v) => setExAdherence(v[0])}
+                />
+              </div>
+            </div>
+          )}
+
+          <button
+            onClick={save}
+            className="press flex w-full items-center justify-center gap-2 rounded-xl gradient-hero py-3 font-bold text-primary-foreground"
+          >
+            <Save className="h-5 w-5" /> Save
+          </button>
+        </div>
+      </CollapsibleContent>
+    </Collapsible>
+  );
+}
+
+function YesNo({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <div className="mt-1 flex rounded-full bg-muted p-1">
+      {([["Yes", true], ["No", false]] as const).map(([label, v]) => (
+        <button
+          key={label}
+          onClick={() => onChange(v)}
+          className={`press flex-1 rounded-full py-2 text-sm font-semibold ${
+            value === v ? "bg-card shadow-card" : "text-muted-foreground"
+          }`}
+        >
+          {label}
+        </button>
+      ))}
     </div>
   );
 }
