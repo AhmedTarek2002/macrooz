@@ -13,6 +13,7 @@ export type Profile = {
   activity_level: number;
   protein_per_kg: number;
   fat_pct: number;
+  calorie_adjust: number;
   calc_formula: "mifflin" | "harris" | "katch";
   calorie_target: number;
   protein_target: number;

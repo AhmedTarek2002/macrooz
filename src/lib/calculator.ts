@@ -13,6 +13,7 @@ export type CalcInput = {
   goal: "lose" | "maintain" | "gain";
   protein_per_kg: number; // advanced, default 2
   fat_pct: number; // advanced, % of calories from fat, default 25
+  calorie_adjust: number; // advanced, surplus (gain) / deficit (lose) in kcal, default 500
 };
 
 export type FormulaDef = {
@@ -51,10 +52,11 @@ export const ACTIVITY_LEVELS = [
   { value: 1.9, label: "Very active", desc: "Hard exercise + physical job" },
 ] as const;
 
-export const GOAL_ADJUST: Record<CalcInput["goal"], number> = {
-  lose: -500,
+// Sign multiplier per goal; the magnitude comes from CalcInput.calorie_adjust.
+export const GOAL_SIGN: Record<CalcInput["goal"], number> = {
+  lose: -1,
   maintain: 0,
-  gain: 300,
+  gain: 1,
 };
 
 // Returns BMR (basal metabolic rate) in kcal/day, or null if inputs are insufficient.
@@ -91,7 +93,7 @@ export function computeMacros(formula: FormulaKey, i: CalcInput): MacroResult | 
   if (bmr == null) return null;
 
   const tdee = bmr * i.activity_level;
-  const calories = Math.max(0, tdee + GOAL_ADJUST[i.goal]);
+  const calories = Math.max(0, tdee + GOAL_SIGN[i.goal] * (i.calorie_adjust || 0));
 
   const protein = i.protein_per_kg * i.weight_kg;
   const proteinCals = protein * 4;
