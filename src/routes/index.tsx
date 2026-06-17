@@ -243,7 +243,7 @@ function TodayPage() {
 
       {/* End of Day Check-in */}
       <CheckinCard
-        key={date}
+        key={`${date}-${review?.id ?? "new"}`}
         review={review ?? null}
         onSave={(payload) =>
           upsertReview.mutate(payload, {
