@@ -13,6 +13,7 @@ export type CalcInput = {
   goal: "lose" | "maintain" | "gain";
   protein_per_kg: number; // advanced, default 2
   fat_pct: number; // advanced, % of calories from fat, default 25
+  calorie_adjust: number; // advanced, surplus (gain) / deficit (lose) in kcal, default 500
 };
 
 export type FormulaDef = {
