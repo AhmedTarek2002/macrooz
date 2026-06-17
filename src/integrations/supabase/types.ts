@@ -207,6 +207,7 @@ export type Database = {
           age: number | null
           body_fat_pct: number | null
           calc_formula: string
+          calorie_adjust: number
           calorie_target: number
           carb_target: number
           color: string
@@ -232,6 +233,7 @@ export type Database = {
           age?: number | null
           body_fat_pct?: number | null
           calc_formula?: string
+          calorie_adjust?: number
           calorie_target?: number
           carb_target?: number
           color?: string
@@ -257,6 +259,7 @@ export type Database = {
           age?: number | null
           body_fat_pct?: number | null
           calc_formula?: string
+          calorie_adjust?: number
           calorie_target?: number
           carb_target?: number
           color?: string
