@@ -91,6 +91,7 @@ export function CalculatorSection() {
     setFormula(currentProfile.calc_formula ?? "mifflin");
     setProteinPerKg(String(currentProfile.protein_per_kg ?? 2));
     setFatPct(String(currentProfile.fat_pct ?? 25));
+    setCalorieAdjust(String(currentProfile.calorie_adjust ?? 500));
   }, [currentProfile]);
 
   const input: CalcInput = useMemo(
