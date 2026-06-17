@@ -74,6 +74,7 @@ export function CalculatorSection() {
   const [formula, setFormula] = useState<FormulaKey>("mifflin");
   const [proteinPerKg, setProteinPerKg] = useState("2");
   const [fatPct, setFatPct] = useState("25");
+  const [calorieAdjust, setCalorieAdjust] = useState("500");
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [saving, setSaving] = useState(false);
 
