@@ -57,6 +57,8 @@ function TodayPage() {
   const { add, update, remove } = useFoodLogMutations(pid, date);
   const { data: weights = [] } = useWeightEntries(pid);
   const { upsert: upsertWeight } = useWeightMutations(pid);
+  const { data: review } = useDailyReview(pid, date);
+  const { upsert: upsertReview } = useReviewMutations(pid, date);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
