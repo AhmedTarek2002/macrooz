@@ -105,8 +105,9 @@ export function CalculatorSection() {
       goal,
       protein_per_kg: Number(proteinPerKg) || 0,
       fat_pct: Number(fatPct) || 0,
+      calorie_adjust: Number(calorieAdjust) || 0,
     }),
-    [sex, age, height, weight, bodyFat, activity, goal, proteinPerKg, fatPct],
+    [sex, age, height, weight, bodyFat, activity, goal, proteinPerKg, fatPct, calorieAdjust],
   );
 
   const results = useMemo(
