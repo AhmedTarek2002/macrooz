@@ -10,18 +10,24 @@ import {
 } from "@dnd-kit/core";
 import { toast } from "sonner";
 import { toPng } from "html-to-image";
-import { Download, Flame, Scale, Pencil, Check } from "lucide-react";
+import { Download, Flame, Scale, Pencil, Check, ChevronDown, Moon, Salad, Dumbbell, Save } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { DateNav } from "@/components/DateNav";
 import { MealSection } from "@/components/MealSection";
 import { FoodPicker } from "@/components/FoodPicker";
 import { MicrosList } from "@/components/MicrosList";
 import { ProgressRing } from "@/components/ProgressRing";
+import { Slider } from "@/components/ui/slider";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { useProfile } from "@/context/ProfileProvider";
-import { useFoodLogs, useFoodLogMutations, useNutrientGoals, useWeightEntries, useWeightMutations } from "@/hooks/useData";
+import { useFoodLogs, useFoodLogMutations, useNutrientGoals, useWeightEntries, useWeightMutations, useDailyReview, useReviewMutations } from "@/hooks/useData";
 import { MEALS, type Meal } from "@/lib/nutrients";
 import { sumLogs, foodToSnapshot, goalsMap, todayStr, fmt, round } from "@/lib/nutrition";
-import type { Food, FoodLog } from "@/lib/types";
+import type { DailyReview, Food, FoodLog } from "@/lib/types";
 
 export const Route = createFileRoute("/")({
   head: () => ({
