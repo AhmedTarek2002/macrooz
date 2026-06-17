@@ -95,16 +95,8 @@ function ReportsPage() {
     };
   }, [data]);
 
-  const days = useMemo<DayDetail[]>(() => {
-    if (!data) return [];
-    const map: Record<string, DayDetail> = {};
-    const ensure = (d: string) =>
-      (map[d] ||= { date: d, logs: [], review: undefined, weight: undefined });
-    for (const l of data.logs) ensure(l.log_date).logs.push(l);
-    for (const r of data.reviews) ensure(r.review_date).review = r;
-    for (const w of data.weights) ensure(w.entry_date).weight = Number(w.weight);
-    return Object.values(map).sort((a, b) => b.date.localeCompare(a.date));
-  }, [data]);
+
+
 
   const exportReport = async () => {
     if (!chartRef.current) return;
