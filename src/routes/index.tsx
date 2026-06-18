@@ -10,7 +10,11 @@ import {
 } from "@dnd-kit/core";
 import { toast } from "sonner";
 import { toPng } from "html-to-image";
-import { Download, Flame, Scale, Pencil, Check, ChevronDown, Moon, Salad, Dumbbell, Save } from "lucide-react";
+import { Download, Flame, Scale, Pencil, Check, ChevronDown, Moon, Salad, Dumbbell, Save, Info } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { supabase } from "@/integrations/supabase/client";
+import { computeMacros, type CalcInput } from "@/lib/calculator";
 import { AppShell } from "@/components/AppShell";
 import { DateNav } from "@/components/DateNav";
 import { MealSection } from "@/components/MealSection";
