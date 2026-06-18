@@ -405,12 +405,18 @@ function WeightCard({
   weight: number | null;
   onSave: (w: number) => void;
 }) {
+  const { currentProfile, refetchProfiles } = useProfile();
   const [editing, setEditing] = useState(weight == null);
   const [value, setValue] = useState(weight != null ? String(weight) : "");
+  const [savedWeight, setSavedWeight] = useState<number | null>(weight);
+  const [program, setProgram] = useState<"same" | "new" | null>(null);
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     setValue(weight != null ? String(weight) : "");
     setEditing(weight == null);
+    setSavedWeight(weight);
+    setProgram(null);
   }, [weight]);
 
   const save = () => {
@@ -420,8 +426,97 @@ function WeightCard({
       return;
     }
     onSave(w);
+    setSavedWeight(w);
     setEditing(false);
+    setProgram(null);
   };
+
+  const applyProgram = async (mode: "same" | "new") => {
+    if (!currentProfile || savedWeight == null) return;
+    setBusy(true);
+    try {
+      if (mode === "same") {
+        // Update the diet weight only — leave calorie & macro targets untouched.
+        const { error } = await supabase
+          .from("profiles")
+          .update({ current_weight: savedWeight } as never)
+          .eq("id", currentProfile.id);
+        if (error) throw error;
+        toast.success("Weight updated · targets kept");
+      } else {
+        // Recalculate targets entirely from the new weight.
+        const input: CalcInput = {
+          sex: currentProfile.sex,
+          age: currentProfile.age ?? 0,
+          height_cm: currentProfile.height_cm ?? 0,
+          weight_kg: savedWeight,
+          body_fat_pct: currentProfile.body_fat_pct,
+          activity_level: currentProfile.activity_level,
+          goal: currentProfile.diet_goal,
+          protein_per_kg: currentProfile.protein_per_kg,
+          fat_pct: currentProfile.fat_pct,
+          calorie_adjust: currentProfile.calorie_adjust,
+        };
+        const r = computeMacros(currentProfile.calc_formula, input);
+        if (!r) {
+          toast.error("Add age, height & activity in Profile first");
+          setBusy(false);
+          return;
+        }
+        const { error } = await supabase
+          .from("profiles")
+          .update({
+            current_weight: savedWeight,
+            calorie_target: r.calories,
+            protein_target: r.protein,
+            carb_target: r.carbs,
+            fat_target: r.fat,
+          } as never)
+          .eq("id", currentProfile.id);
+        if (error) throw error;
+        toast.success("New program applied · targets updated");
+      }
+      setProgram(mode);
+      refetchProfiles();
+    } catch {
+      toast.error("Could not update program");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const PROGRAMS = {
+    same: {
+      label: "Same Program",
+      tip: "Updates your current weight record, but keeps your existing calorie and macro targets unchanged.",
+    },
+    new: {
+      label: "New Program",
+      tip: "Recalculates your daily calories and macros entirely based on your new weight.",
+    },
+  } as const;
+
+  const InfoTip = ({ tip }: { tip: string }) => (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          onClick={(e) => e.stopPropagation()}
+          aria-label="Info"
+          className="press flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-muted-foreground"
+        >
+          <Info className="h-4 w-4" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent
+        side="top"
+        align="end"
+        className="w-60 rounded-xl p-3 text-xs leading-relaxed"
+      >
+        {tip}
+      </PopoverContent>
+    </Popover>
+  );
 
   return (
     <div className="rounded-2xl border bg-card p-4 shadow-card">
@@ -457,7 +552,7 @@ function WeightCard({
       ) : (
         <div className="flex items-center justify-between">
           <p className="text-lg font-extrabold leading-none">
-            {fmt(Number(weight), 1)} <span className="text-xs font-medium text-muted-foreground">kg</span>
+            {fmt(Number(savedWeight ?? weight), 1)} <span className="text-xs font-medium text-muted-foreground">kg</span>
           </p>
           <button
             onClick={() => setEditing(true)}
@@ -467,6 +562,66 @@ function WeightCard({
           </button>
         </div>
       )}
+
+      {/* Program selector — appears once a weight is saved */}
+      <AnimatePresence initial={false}>
+        {!editing && savedWeight != null && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.28, ease: "easeOut" }}
+            className="overflow-hidden"
+          >
+            <div className="mt-3 flex items-center gap-2 pt-1">
+              <AnimatePresence initial={false} mode="popLayout">
+                {(["same", "new"] as const)
+                  .filter((k) => program === null || program === k)
+                  .map((k) => {
+                    const active = program === k;
+                    return (
+                      <motion.div
+                        key={k}
+                        layout
+                        initial={{ opacity: 0, width: 0 }}
+                        animate={{ opacity: 1, width: "auto" }}
+                        exit={{ opacity: 0, width: 0 }}
+                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                        className={`flex items-center gap-1 overflow-hidden ${active ? "flex-1" : ""}`}
+                      >
+                        <button
+                          type="button"
+                          disabled={busy}
+                          onClick={() => !active && applyProgram(k)}
+                          className={`press flex min-w-0 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-full px-3 py-2 text-sm font-semibold transition-colors ${
+                            active
+                              ? "gradient-hero text-primary-foreground"
+                              : "border bg-background text-foreground"
+                          }`}
+                        >
+                          {active && <Check className="h-4 w-4 shrink-0" />}
+                          {PROGRAMS[k].label}
+                        </button>
+                        {active ? (
+                          <button
+                            type="button"
+                            onClick={() => setProgram(null)}
+                            aria-label="Change program"
+                            className="press flex h-7 w-7 shrink-0 items-center justify-center rounded-full border bg-background text-muted-foreground"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </button>
+                        ) : (
+                          <InfoTip tip={PROGRAMS[k].tip} />
+                        )}
+                      </motion.div>
+                    );
+                  })}
+              </AnimatePresence>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
