@@ -326,7 +326,7 @@ function CheckinCard({
             <Slider
               min={0}
               max={100}
-              step={1}
+              step={10}
               value={[diet]}
               onValueChange={(v) => setDiet(v[0])}
             />
@@ -360,7 +360,7 @@ function CheckinCard({
                 <Slider
                   min={0}
                   max={100}
-                  step={1}
+                  step={10}
                   value={[exAdherence]}
                   onValueChange={(v) => setExAdherence(v[0])}
                 />
