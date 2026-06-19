@@ -419,11 +419,25 @@ function WeightCard({
   const [program, setProgram] = useState<"same" | "new" | null>(null);
   const [busy, setBusy] = useState(false);
 
+  type Targets = {
+    calorie_target: number;
+    protein_target: number;
+    carb_target: number;
+    fat_target: number;
+  };
+  // Holds the initial, untouched diet plan. NEVER overwritten by "New Program".
+  const originalProgramTargets = useRef<Targets | null>(null);
+  // Holds the values calculated while "New Program" is active.
+  const newProgramTargets = useRef<Targets | null>(null);
+
   useEffect(() => {
     setValue(weight != null ? String(weight) : "");
     setEditing(weight == null);
     setSavedWeight(weight);
     setProgram(null);
+    // Reset both program memories when the day's weight context changes.
+    originalProgramTargets.current = null;
+    newProgramTargets.current = null;
   }, [weight]);
 
   const save = () => {
@@ -440,16 +454,36 @@ function WeightCard({
 
   const applyProgram = async (mode: "same" | "new") => {
     if (!currentProfile || savedWeight == null) return;
+
+    // Capture the initial, untouched plan once — before any "New Program" edits.
+    // At this point currentProfile still holds the original targets.
+    if (originalProgramTargets.current == null) {
+      originalProgramTargets.current = {
+        calorie_target: currentProfile.calorie_target,
+        protein_target: currentProfile.protein_target,
+        carb_target: currentProfile.carb_target,
+        fat_target: currentProfile.fat_target,
+      };
+    }
+
     setBusy(true);
     try {
       if (mode === "same") {
-        // Update the diet weight only — leave calorie & macro targets untouched.
+        // Reset completely back to the original targets, discarding any
+        // "New Program" recalculations so they stay isolated.
+        const orig = originalProgramTargets.current;
         const { error } = await supabase
           .from("profiles")
-          .update({ current_weight: savedWeight } as never)
+          .update({
+            current_weight: savedWeight,
+            calorie_target: orig.calorie_target,
+            protein_target: orig.protein_target,
+            carb_target: orig.carb_target,
+            fat_target: orig.fat_target,
+          } as never)
           .eq("id", currentProfile.id);
         if (error) throw error;
-        toast.success("Weight updated · targets kept");
+        toast.success("Weight updated · original targets restored");
       } else {
         // Recalculate targets entirely from the new weight.
         const input: CalcInput = {
@@ -470,14 +504,22 @@ function WeightCard({
           setBusy(false);
           return;
         }
+        // Store the modified plan separately so it never touches the original.
+        newProgramTargets.current = {
+          calorie_target: r.calories,
+          protein_target: r.protein,
+          carb_target: r.carbs,
+          fat_target: r.fat,
+        };
+        const next = newProgramTargets.current;
         const { error } = await supabase
           .from("profiles")
           .update({
             current_weight: savedWeight,
-            calorie_target: r.calories,
-            protein_target: r.protein,
-            carb_target: r.carbs,
-            fat_target: r.fat,
+            calorie_target: next.calorie_target,
+            protein_target: next.protein_target,
+            carb_target: next.carb_target,
+            fat_target: next.fat_target,
           } as never)
           .eq("id", currentProfile.id);
         if (error) throw error;
