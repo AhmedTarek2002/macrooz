@@ -419,11 +419,25 @@ function WeightCard({
   const [program, setProgram] = useState<"same" | "new" | null>(null);
   const [busy, setBusy] = useState(false);
 
+  type Targets = {
+    calorie_target: number;
+    protein_target: number;
+    carb_target: number;
+    fat_target: number;
+  };
+  // Holds the initial, untouched diet plan. NEVER overwritten by "New Program".
+  const originalProgramTargets = useRef<Targets | null>(null);
+  // Holds the values calculated while "New Program" is active.
+  const newProgramTargets = useRef<Targets | null>(null);
+
   useEffect(() => {
     setValue(weight != null ? String(weight) : "");
     setEditing(weight == null);
     setSavedWeight(weight);
     setProgram(null);
+    // Reset both program memories when the day's weight context changes.
+    originalProgramTargets.current = null;
+    newProgramTargets.current = null;
   }, [weight]);
 
   const save = () => {
