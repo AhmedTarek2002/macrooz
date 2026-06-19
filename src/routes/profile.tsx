@@ -16,6 +16,8 @@ import {
   ChevronDown,
   Check,
   Calculator as CalcIcon,
+  Scale,
+  Lock,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import {
