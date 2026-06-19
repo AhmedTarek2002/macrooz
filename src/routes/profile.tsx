@@ -328,12 +328,25 @@ function ProfilePage() {
           <NumField label="Height" value={height} onChange={setHeight} suffix="cm" placeholder="175" />
         </div>
 
-        <p className="mt-2 text-xs font-medium text-muted-foreground">
-          Last recorded weight:{" "}
-          <span className="font-bold text-foreground">
-            {lastWeight != null ? `${lastWeight} kg` : "—"}
-          </span>
-        </p>
+        <div className="mt-4 flex items-center gap-3 rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/10 to-primary/5 p-3.5">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary">
+            <Scale className="h-5 w-5" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              Last recorded weight
+              <Lock className="h-3 w-3" />
+            </div>
+            <div className="mt-0.5 flex items-baseline gap-1">
+              <span className="text-2xl font-extrabold leading-none text-foreground">
+                {lastWeight != null ? lastWeight : "—"}
+              </span>
+              {lastWeight != null && (
+                <span className="text-sm font-semibold text-muted-foreground">kg</span>
+              )}
+            </div>
+          </div>
+        </div>
 
         <div className="mt-3">
           <span className="text-xs font-medium text-muted-foreground">Activity level</span>
