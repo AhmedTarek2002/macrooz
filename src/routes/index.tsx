@@ -33,6 +33,13 @@ import { MEALS, type Meal } from "@/lib/nutrients";
 import { sumLogs, foodToSnapshot, goalsMap, todayStr, fmt, round } from "@/lib/nutrition";
 import type { DailyReview, Food, FoodLog } from "@/lib/types";
 
+// Magnetic snap: keep every value 0-100 selectable, but pull values that land
+// right next to a multiple of 10 onto that multiple for an easier "magnet" stop.
+function magnetTo10(v: number) {
+  const nearest = Math.round(v / 10) * 10;
+  return Math.abs(v - nearest) <= 1 ? nearest : v;
+}
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -326,9 +333,9 @@ function CheckinCard({
             <Slider
               min={0}
               max={100}
-              step={10}
+              step={1}
               value={[diet]}
-              onValueChange={(v) => setDiet(v[0])}
+              onValueChange={(v) => setDiet(magnetTo10(v[0]))}
             />
           </div>
 
@@ -360,9 +367,9 @@ function CheckinCard({
                 <Slider
                   min={0}
                   max={100}
-                  step={10}
+                  step={1}
                   value={[exAdherence]}
-                  onValueChange={(v) => setExAdherence(v[0])}
+                  onValueChange={(v) => setExAdherence(magnetTo10(v[0]))}
                 />
               </div>
             </div>
