@@ -149,6 +149,7 @@ function TodayPage() {
 
       {/* Morning weigh-in */}
       <WeightCard
+        date={date}
         weight={weights.find((w) => w.entry_date === date)?.weight ?? null}
         onSave={(w) =>
           upsertWeight.mutate(
