@@ -149,6 +149,7 @@ function TodayPage() {
 
       {/* Morning weigh-in */}
       <WeightCard
+        date={date}
         weight={weights.find((w) => w.entry_date === date)?.weight ?? null}
         onSave={(w) =>
           upsertWeight.mutate(
@@ -416,9 +417,11 @@ function YesNo({ value, onChange }: { value: boolean; onChange: (v: boolean) => 
 }
 
 function WeightCard({
+  date,
   weight,
   onSave,
 }: {
+  date: string;
   weight: number | null;
   onSave: (w: number) => void;
 }) {
@@ -426,7 +429,23 @@ function WeightCard({
   const [editing, setEditing] = useState(weight == null);
   const [value, setValue] = useState(weight != null ? String(weight) : "");
   const [savedWeight, setSavedWeight] = useState<number | null>(weight);
-  const [program, setProgram] = useState<"same" | "new" | null>(null);
+
+  // Persist the program selection per calendar day so it survives tab switches
+  // and only resets on a new day.
+  const programKey = `program-choice:${date}`;
+  const readProgram = (): "same" | "new" | null => {
+    if (typeof window === "undefined") return null;
+    const v = window.localStorage.getItem(programKey);
+    return v === "same" || v === "new" ? v : null;
+  };
+  const [program, setProgramState] = useState<"same" | "new" | null>(readProgram);
+  const setProgram = (next: "same" | "new" | null) => {
+    setProgramState(next);
+    if (typeof window !== "undefined") {
+      if (next == null) window.localStorage.removeItem(programKey);
+      else window.localStorage.setItem(programKey, next);
+    }
+  };
   const [busy, setBusy] = useState(false);
 
   type Targets = {
@@ -444,11 +463,14 @@ function WeightCard({
     setValue(weight != null ? String(weight) : "");
     setEditing(weight == null);
     setSavedWeight(weight);
-    setProgram(null);
+    // Restore the saved selection for this day (kept across tab switches).
+    setProgramState(readProgram());
     // Reset both program memories when the day's weight context changes.
     originalProgramTargets.current = null;
     newProgramTargets.current = null;
-  }, [weight]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [weight, date]);
+
 
   const save = () => {
     const w = Number(value);
