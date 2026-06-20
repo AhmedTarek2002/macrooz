@@ -275,13 +275,16 @@ function CheckinCard({
   onSave: (payload: Partial<DailyReview>) => void;
 }) {
   const [open, setOpen] = useState(false);
-  const initialExAdherence = review?.exercise_adherence != null
-    ? Number(review.exercise_adherence)
-    : review?.exercise_completed === false
-      ? 0
-      : 100;
+  const initialExAdherence =
+    review?.exercise_adherence != null
+      ? Number(review.exercise_adherence)
+      : review?.exercise_completed === false
+        ? 0
+        : 100;
   const [sleep, setSleep] = useState(review?.sleep_hours != null ? Number(review.sleep_hours) : 7);
-  const [diet, setDiet] = useState(review?.diet_adherence != null ? Number(review.diet_adherence) : 100);
+  const [diet, setDiet] = useState(
+    review?.diet_adherence != null ? Number(review.diet_adherence) : 100,
+  );
   const [planned, setPlanned] = useState(review?.exercise_planned ?? false);
   const [completed, setCompleted] = useState(initialExAdherence > 0);
   const [exAdherence, setExAdherence] = useState(initialExAdherence);
