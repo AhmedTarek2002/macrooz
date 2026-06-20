@@ -56,6 +56,7 @@ export const FOOD_CATEGORIES = [
   "Fats",
   "Snacks",
   "Drinks",
+  "Supplements",
   "Other",
 ];
 
