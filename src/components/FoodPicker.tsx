@@ -84,7 +84,7 @@ export function FoodPicker({
 
         {!selected ? (
           <div className="flex min-h-0 flex-1 flex-col px-4 pb-6">
-            <div className="relative">
+            <div className="relative shrink-0">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
                 value={query}
@@ -95,7 +95,7 @@ export function FoodPicker({
               />
             </div>
 
-            <div className="mt-3 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none]">
+            <div className="mt-3 flex shrink-0 gap-2 overflow-x-auto py-1 [scrollbar-width:none]">
               {["All", ...FOOD_CATEGORIES].map((c) => (
                 <button
                   key={c}
