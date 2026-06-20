@@ -369,7 +369,11 @@ function CheckinCard({
                   max={100}
                   step={1}
                   value={[exAdherence]}
-                  onValueChange={(v) => setExAdherence(magnetTo10(v[0]))}
+                  onValueChange={(v) => {
+                    const next = magnetTo10(v[0]);
+                    setExAdherence(next);
+                    setCompleted(next > 0);
+                  }}
                 />
               </div>
             </div>
