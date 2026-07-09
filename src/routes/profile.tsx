@@ -523,14 +523,6 @@ function ProfilePage() {
       <GoalAccordion title="Vitamin Goals (RDA & Upper Limit)" defs={VITAMINS} state={goalState} setState={setGoalState} />
       <GoalAccordion title="Mineral Goals (RDA & Upper Limit)" defs={MINERALS} state={goalState} setState={setGoalState} />
 
-      {profiles.length > 1 && (
-        <button
-          onClick={deleteProfile}
-          className="press flex w-full items-center justify-center gap-2 rounded-xl border border-status-over/40 py-3 font-semibold text-status-over"
-        >
-          <Trash2 className="h-4 w-4" /> Delete profile
-        </button>
-      )}
 
       {/* Manage foods */}
       <Link
