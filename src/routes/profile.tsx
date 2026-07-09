@@ -92,7 +92,7 @@ function NumField({
 type GoalState = Record<string, { rda: string; ul: string }>;
 
 function ProfilePage() {
-  const { currentProfile, refetchProfiles, setCurrentProfileId, profiles } = useProfile();
+  const { currentProfile, refetchProfiles } = useProfile();
   const pid = currentProfile?.id ?? null;
   const { data: goals = [] } = useNutrientGoals(pid);
   const { upsert: upsertGoals } = useNutrientGoalMutations(pid);
