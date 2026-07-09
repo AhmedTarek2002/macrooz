@@ -1,6 +1,8 @@
-import { Link } from "@tanstack/react-router";
-import { Moon, Sun, ChevronDown, UserCog, LogOut, Check } from "lucide-react";
+import { useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
+import { Moon, Sun, ChevronDown, UserCog, LogOut, Check, Users } from "lucide-react";
 import { useProfile } from "@/context/ProfileProvider";
+import { ManageProfiles } from "@/components/ManageProfiles";
 import {
   DropdownMenu,
   DropdownMenuContent,
