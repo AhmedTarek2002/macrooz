@@ -668,7 +668,7 @@ function WeightCard({
                         animate={{ opacity: 1, width: "auto" }}
                         exit={{ opacity: 0, width: 0 }}
                         transition={{ duration: 0.3, ease: "easeInOut" }}
-                        className={`flex items-center gap-1 overflow-hidden ${active ? "flex-1" : ""}`}
+                        className="flex flex-1 items-center gap-1 overflow-hidden"
                       >
                         <button
                           type="button"
