@@ -23,6 +23,8 @@ const COLOR_GRADIENT: Record<string, string> = {
 
 export function TopBar({ title, subtitle }: { title: string; subtitle?: string }) {
   const { profiles, currentProfile, setCurrentProfileId, theme, toggleTheme } = useProfile();
+  const navigate = useNavigate();
+  const [manageOpen, setManageOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-xl safe-top px-4 pb-2">
@@ -65,10 +67,11 @@ export function TopBar({ title, subtitle }: { title: string; subtitle?: string }
                 </DropdownMenuItem>
               ))}
               <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link to="/profile">
-                  <UserCog className="mr-2 h-4 w-4" /> Profile &amp; Goals
-                </Link>
+              <DropdownMenuItem onSelect={() => navigate({ to: "/profile" })}>
+                <UserCog className="mr-2 h-4 w-4" /> Profile &amp; Goals
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setManageOpen(true)}>
+                <Users className="mr-2 h-4 w-4" /> Manage Profiles
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setCurrentProfileId(null)}>
                 <LogOut className="mr-2 h-4 w-4" /> Choose profile
@@ -77,6 +80,8 @@ export function TopBar({ title, subtitle }: { title: string; subtitle?: string }
           </DropdownMenu>
         </div>
       </div>
+
+      <ManageProfiles open={manageOpen} onOpenChange={setManageOpen} />
     </header>
   );
 }
