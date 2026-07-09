@@ -105,6 +105,11 @@ function ReviewPage() {
             label="Diet adherence"
             value={review?.diet_adherence != null ? `${review.diet_adherence}%` : "—"}
           />
+          <Row
+            icon={<Pill className="h-4 w-4 text-primary" />}
+            label="Vitamins & minerals"
+            value={microScore != null ? `${microScore}%` : "—"}
+          />
         </div>
       </section>
     </div>
