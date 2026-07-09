@@ -43,7 +43,7 @@ function magnetTo10(v: number) {
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Macrooz — Daily Nutrition & Macro Tracker" },
+      { title: "Macrooz" },
       { name: "description", content: "Plan meals and track macros, micros, weight and fitness with Macrooz." },
     ],
   }),

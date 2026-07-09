@@ -83,11 +83,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover",
       },
-      { title: "Macrooz — Nutrition, Macro & Fitness Tracker" },
+      { title: "Macrooz" },
       {
         name: "description",
         content:
-          "Macrooz is a personal nutrition, macro & micro, weight and fitness tracker. Plan meals, hit your targets, and review your day.",
+          "Plan meals and track macros, micros, weight and fitness with Macrooz.",
       },
       { name: "author", content: "Macrooz" },
       { name: "theme-color", content: "#f97316" },
@@ -95,13 +95,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "apple-mobile-web-app-status-bar-style", content: "default" },
       { name: "apple-mobile-web-app-title", content: "Macrooz" },
       { name: "mobile-web-app-capable", content: "yes" },
-      { property: "og:title", content: "Macrooz — Nutrition & Macro Tracker" },
+      { property: "og:title", content: "Macrooz" },
       {
         property: "og:description",
-        content: "Plan meals and track macros, micros, weight and fitness.",
+        content: "Plan meals and track macros, micros, weight and fitness with Macrooz.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "Macrooz" },
+      { name: "twitter:description", content: "Plan meals and track macros, micros, weight and fitness with Macrooz." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/99b873f2-90a3-4e7d-8e55-b9725e199033/id-preview-1fb8459f--8c0bf932-5360-4748-aaeb-63bf27c56518.lovable.app-1783582904332.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/99b873f2-90a3-4e7d-8e55-b9725e199033/id-preview-1fb8459f--8c0bf932-5360-4748-aaeb-63bf27c56518.lovable.app-1783582904332.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
