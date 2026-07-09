@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Dumbbell, Moon, Salad, Scale } from "lucide-react";
+import { Dumbbell, Moon, Salad, Scale, Pill } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { DateNav } from "@/components/DateNav";
 import { useProfile } from "@/context/ProfileProvider";
@@ -8,8 +8,10 @@ import {
   useDailyReview,
   useFoodLogs,
   useWeightEntries,
+  useNutrientGoals,
 } from "@/hooks/useData";
-import { sumLogs, todayStr, fmt, macroStatus } from "@/lib/nutrition";
+import { sumLogs, todayStr, fmt, macroStatus, goalsMap } from "@/lib/nutrition";
+import { ALL_NUTRIENTS } from "@/lib/nutrients";
 import { StatusBadge } from "@/components/StatusBadge";
 
 export const Route = createFileRoute("/review")({
@@ -29,10 +31,27 @@ function ReviewPage() {
   const { data: review } = useDailyReview(pid, date);
   const { data: logs = [] } = useFoodLogs(pid, date);
   const { data: weights = [] } = useWeightEntries(pid);
+  const { data: goals = [] } = useNutrientGoals(pid);
 
   const totals = sumLogs(logs);
   const p = currentProfile!;
   const dayWeight = weights.find((w) => w.entry_date === date)?.weight ?? null;
+
+  // Vitamins & minerals adherence: average of each nutrient's completion (capped at 100%).
+  const goalById = goalsMap(goals);
+  const microScore = (() => {
+    const tracked = ALL_NUTRIENTS.filter((n) => {
+      const rda = goalById[n.key]?.rda ?? n.defaultRda;
+      return rda != null && rda > 0;
+    });
+    if (tracked.length === 0) return null;
+    const sum = tracked.reduce((acc, n) => {
+      const rda = (goalById[n.key]?.rda ?? n.defaultRda)!;
+      const consumed = totals.micros[n.key] || 0;
+      return acc + Math.min(100, (consumed / rda) * 100);
+    }, 0);
+    return Math.round(sum / tracked.length);
+  })();
 
   return (
     <div className="space-y-4">
@@ -85,6 +104,11 @@ function ReviewPage() {
             icon={<Salad className="h-4 w-4 text-primary" />}
             label="Diet adherence"
             value={review?.diet_adherence != null ? `${review.diet_adherence}%` : "—"}
+          />
+          <Row
+            icon={<Pill className="h-4 w-4 text-primary" />}
+            label="Vitamins & minerals"
+            value={microScore != null ? `${microScore}%` : "—"}
           />
         </div>
       </section>
