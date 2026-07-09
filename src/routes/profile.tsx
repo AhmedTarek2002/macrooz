@@ -270,14 +270,6 @@ function ProfilePage() {
     toast.success("Saved ✓");
   };
 
-  const deleteProfile = async () => {
-    if (!pid) return;
-    if (!confirm("Delete this profile and all its data? This cannot be undone.")) return;
-    await supabase.from("profiles").delete().eq("id", pid);
-    refetchProfiles();
-    setCurrentProfileId(null);
-    toast.success("Profile deleted");
-  };
 
   if (!currentProfile) return null;
 
