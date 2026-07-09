@@ -11,7 +11,6 @@ import { toast } from "sonner";
 import { AnimatePresence, motion } from "motion/react";
 import {
   Save,
-  Trash2,
   Database,
   ChevronDown,
   Check,
@@ -92,7 +91,7 @@ function NumField({
 type GoalState = Record<string, { rda: string; ul: string }>;
 
 function ProfilePage() {
-  const { currentProfile, refetchProfiles, setCurrentProfileId, profiles } = useProfile();
+  const { currentProfile, refetchProfiles } = useProfile();
   const pid = currentProfile?.id ?? null;
   const { data: goals = [] } = useNutrientGoals(pid);
   const { upsert: upsertGoals } = useNutrientGoalMutations(pid);
@@ -270,14 +269,6 @@ function ProfilePage() {
     toast.success("Saved ✓");
   };
 
-  const deleteProfile = async () => {
-    if (!pid) return;
-    if (!confirm("Delete this profile and all its data? This cannot be undone.")) return;
-    await supabase.from("profiles").delete().eq("id", pid);
-    refetchProfiles();
-    setCurrentProfileId(null);
-    toast.success("Profile deleted");
-  };
 
   if (!currentProfile) return null;
 
@@ -523,14 +514,6 @@ function ProfilePage() {
       <GoalAccordion title="Vitamin Goals (RDA & Upper Limit)" defs={VITAMINS} state={goalState} setState={setGoalState} />
       <GoalAccordion title="Mineral Goals (RDA & Upper Limit)" defs={MINERALS} state={goalState} setState={setGoalState} />
 
-      {profiles.length > 1 && (
-        <button
-          onClick={deleteProfile}
-          className="press flex w-full items-center justify-center gap-2 rounded-xl border border-status-over/40 py-3 font-semibold text-status-over"
-        >
-          <Trash2 className="h-4 w-4" /> Delete profile
-        </button>
-      )}
 
       {/* Manage foods */}
       <Link
