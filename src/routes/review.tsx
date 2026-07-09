@@ -31,10 +31,27 @@ function ReviewPage() {
   const { data: review } = useDailyReview(pid, date);
   const { data: logs = [] } = useFoodLogs(pid, date);
   const { data: weights = [] } = useWeightEntries(pid);
+  const { data: goals = [] } = useNutrientGoals(pid);
 
   const totals = sumLogs(logs);
   const p = currentProfile!;
   const dayWeight = weights.find((w) => w.entry_date === date)?.weight ?? null;
+
+  // Vitamins & minerals adherence: average of each nutrient's completion (capped at 100%).
+  const goalById = goalsMap(goals);
+  const microScore = (() => {
+    const tracked = ALL_NUTRIENTS.filter((n) => {
+      const rda = goalById[n.key]?.rda ?? n.defaultRda;
+      return rda != null && rda > 0;
+    });
+    if (tracked.length === 0) return null;
+    const sum = tracked.reduce((acc, n) => {
+      const rda = (goalById[n.key]?.rda ?? n.defaultRda)!;
+      const consumed = totals.micros[n.key] || 0;
+      return acc + Math.min(100, (consumed / rda) * 100);
+    }, 0);
+    return Math.round(sum / tracked.length);
+  })();
 
   return (
     <div className="space-y-4">
