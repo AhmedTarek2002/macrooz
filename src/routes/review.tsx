@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Dumbbell, Moon, Salad, Scale } from "lucide-react";
+import { Dumbbell, Moon, Salad, Scale, Pill } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { DateNav } from "@/components/DateNav";
 import { useProfile } from "@/context/ProfileProvider";
@@ -8,8 +8,10 @@ import {
   useDailyReview,
   useFoodLogs,
   useWeightEntries,
+  useNutrientGoals,
 } from "@/hooks/useData";
-import { sumLogs, todayStr, fmt, macroStatus } from "@/lib/nutrition";
+import { sumLogs, todayStr, fmt, macroStatus, goalsMap } from "@/lib/nutrition";
+import { ALL_NUTRIENTS } from "@/lib/nutrients";
 import { StatusBadge } from "@/components/StatusBadge";
 
 export const Route = createFileRoute("/review")({
