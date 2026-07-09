@@ -11,7 +11,6 @@ import { toast } from "sonner";
 import { AnimatePresence, motion } from "motion/react";
 import {
   Save,
-  Trash2,
   Database,
   ChevronDown,
   Check,
