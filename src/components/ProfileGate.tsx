@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/context/ProfileProvider";
 import { ALL_NUTRIENTS } from "@/lib/nutrients";
+import { OnboardingWizard } from "@/components/OnboardingWizard";
 
 const COLORS = ["mango", "berry", "ocean", "lime", "grape", "coral"];
 const COLOR_GRADIENT: Record<string, string> = {
@@ -31,14 +32,16 @@ export function ProfileGate() {
   const [creating, setCreating] = useState(false);
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
+  const [wizardProfile, setWizardProfile] = useState<{ id: string; name: string } | null>(null);
 
   const handleCreate = async () => {
     if (!name.trim()) return;
     setBusy(true);
     const color = COLORS[profiles.length % COLORS.length];
+    const trimmed = name.trim();
     const { data, error } = await supabase
       .from("profiles")
-      .insert({ name: name.trim(), color } as never)
+      .insert({ name: trimmed, color } as never)
       .select()
       .single();
     if (error || !data) {
@@ -49,9 +52,19 @@ export function ProfileGate() {
     const id = (data as { id: string }).id;
     await seedNutrientGoals(id);
     await refetchProfiles();
-    setCurrentProfileId(id);
-    toast.success(`Welcome, ${name.trim()}! 🎉`);
+    setBusy(false);
+    setCreating(false);
+    setName("");
+    // Launch guided onboarding — set current profile only after wizard completes.
+    setWizardProfile({ id, name: trimmed });
   };
+
+  const handleWizardComplete = async (id: string) => {
+    await refetchProfiles();
+    setWizardProfile(null);
+    setCurrentProfileId(id);
+  };
+
 
   return (
     <div className="min-h-screen bg-background safe-top px-5 pb-10">
@@ -132,6 +145,14 @@ export function ProfileGate() {
           </button>
         )}
       </div>
+
+      <OnboardingWizard
+        open={wizardProfile !== null}
+        profileId={wizardProfile?.id ?? null}
+        profileName={wizardProfile?.name ?? ""}
+        onComplete={handleWizardComplete}
+      />
     </div>
   );
 }
+

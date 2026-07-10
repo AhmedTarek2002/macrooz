@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import type { DailyReview, Food, FoodLog, NutrientGoal, WeightEntry } from "@/lib/types";
+import type { DailyReview, Food, FoodLog, MealTemplate, NutrientGoal, WeightEntry } from "@/lib/types";
 
 /* ----------------------------- FOODS ----------------------------- */
 
@@ -200,4 +200,44 @@ export function useReviewMutations(profileId: string | null, date: string) {
     },
   });
   return { upsert };
+}
+
+/* ------------------------ MEAL TEMPLATES ------------------------ */
+
+export function useMealTemplates(profileId: string | null) {
+  return useQuery({
+    queryKey: ["meal_templates", profileId],
+    enabled: !!profileId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("meal_templates")
+        .select("*")
+        .eq("profile_id", profileId!)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data as unknown as MealTemplate[];
+    },
+  });
+}
+
+export function useMealTemplateMutations(profileId: string | null) {
+  const qc = useQueryClient();
+  const invalidate = () => qc.invalidateQueries({ queryKey: ["meal_templates", profileId] });
+  const create = useMutation({
+    mutationFn: async (t: Partial<MealTemplate>) => {
+      const { error } = await supabase
+        .from("meal_templates")
+        .insert({ ...t, profile_id: profileId! } as never);
+      if (error) throw error;
+    },
+    onSuccess: invalidate,
+  });
+  const remove = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("meal_templates").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: invalidate,
+  });
+  return { create, remove };
 }
