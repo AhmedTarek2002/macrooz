@@ -78,7 +78,7 @@ function TodayPage() {
 
   const { data: logs = [] } = useFoodLogs(pid, date);
   const { data: goals = [] } = useNutrientGoals(pid);
-  const { add, update, remove } = useFoodLogMutations(pid, date);
+  const { add, update, remove, overwrite } = useFoodLogMutations(pid, date);
   const { data: weights = [] } = useWeightEntries(pid);
   const { upsert: upsertWeight } = useWeightMutations(pid);
   const { data: review } = useDailyReview(pid, date);
