@@ -87,7 +87,43 @@ export function useFoodLogMutations(profileId: string | null, date: string) {
     },
     onSuccess: invalidate,
   });
-  return { add, update, remove };
+  // Overwrite the given meals for `date`: wipe today's existing items in those
+  // meals, then insert `source` (typically yesterday's logs) in their place.
+  const overwrite = useMutation({
+    mutationFn: async ({ meals, source }: { meals: string[]; source: Partial<FoodLog>[] }) => {
+      if (!profileId || meals.length === 0) return;
+      const { error: delError } = await supabase
+        .from("food_logs")
+        .delete()
+        .eq("profile_id", profileId)
+        .eq("log_date", date)
+        .in("meal", meals);
+      if (delError) throw delError;
+
+      const perMeal: Record<string, number> = {};
+      const rows = source
+        .filter((l) => l.meal && meals.includes(l.meal))
+        .map((l) => {
+          const pos = perMeal[l.meal!] ?? 0;
+          perMeal[l.meal!] = pos + 1;
+          return {
+            profile_id: profileId,
+            food_id: l.food_id ?? null,
+            log_date: date,
+            meal: l.meal,
+            grams: l.grams,
+            position: pos,
+            food_snapshot: l.food_snapshot,
+          };
+        });
+      if (rows.length > 0) {
+        const { error: insError } = await supabase.from("food_logs").insert(rows as never);
+        if (insError) throw insError;
+      }
+    },
+    onSuccess: invalidate,
+  });
+  return { add, update, remove, overwrite };
 }
 
 /* ---------------------------- WEIGHT ---------------------------- */

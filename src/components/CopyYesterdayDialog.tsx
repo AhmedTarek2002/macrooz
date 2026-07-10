@@ -30,7 +30,7 @@ export function CopyYesterdayDialog({
   onOpenChange: (o: boolean) => void;
   profileId: string | null;
   date: string;
-  onCopy: (logs: FoodLog[]) => void;
+  onCopy: (logs: FoodLog[], meals: Meal[]) => void;
 }) {
   const yesterday = useMemo(() => shift(date, -1), [date]);
   const { data: logs = [], isLoading } = useFoodLogs(profileId, yesterday);
@@ -53,13 +53,14 @@ export function CopyYesterdayDialog({
   }, [logs]);
 
   const doCopyAll = () => {
-    onCopy(logs);
+    onCopy(logs, [...MEALS] as Meal[]);
     onOpenChange(false);
   };
 
   const doCopySelected = () => {
+    const meals = (MEALS as readonly Meal[]).filter((m) => checked[m]);
     const picked = logs.filter((l) => checked[l.meal]);
-    onCopy(picked);
+    onCopy(picked, meals);
     onOpenChange(false);
   };
 

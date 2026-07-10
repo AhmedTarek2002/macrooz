@@ -78,7 +78,7 @@ function TodayPage() {
 
   const { data: logs = [] } = useFoodLogs(pid, date);
   const { data: goals = [] } = useNutrientGoals(pid);
-  const { add, update, remove } = useFoodLogMutations(pid, date);
+  const { add, update, remove, overwrite } = useFoodLogMutations(pid, date);
   const { data: weights = [] } = useWeightEntries(pid);
   const { upsert: upsertWeight } = useWeightMutations(pid);
   const { data: review } = useDailyReview(pid, date);
@@ -126,31 +126,23 @@ function TodayPage() {
     });
   };
 
-  const handleCopyLogs = (source: FoodLog[]) => {
-    if (source.length === 0) {
+  const handleCopyLogs = (source: FoodLog[], meals: Meal[]) => {
+    if (meals.length === 0) {
       toast.info("Nothing to copy");
       return;
     }
-    const perMealCount: Record<string, number> = {
-      breakfast: byMeal.breakfast?.length ?? 0,
-      lunch: byMeal.lunch?.length ?? 0,
-      dinner: byMeal.dinner?.length ?? 0,
-      snacks: byMeal.snacks?.length ?? 0,
-    };
-    for (const log of source) {
-      const pos = perMealCount[log.meal] ?? 0;
-      perMealCount[log.meal] = pos + 1;
-      add.mutate({
-        profile_id: pid!,
-        food_id: log.food_id,
-        log_date: date,
-        meal: log.meal,
-        grams: log.grams,
-        position: pos,
-        food_snapshot: log.food_snapshot,
-      });
-    }
-    toast.success(`Copied ${source.length} item${source.length === 1 ? "" : "s"}`);
+    overwrite.mutate(
+      { meals, source },
+      {
+        onSuccess: () =>
+          toast.success(
+            source.length === 0
+              ? "Meals cleared"
+              : `Copied ${source.length} item${source.length === 1 ? "" : "s"}`,
+          ),
+        onError: () => toast.error("Could not copy meals"),
+      },
+    );
   };
 
   const handleSaveTemplate = (meal: Meal, mealLogs: FoodLog[]) => {
