@@ -95,3 +95,19 @@ export type DailyReview = {
   sleep_hours: number | null;
   notes: string | null;
 };
+
+export type TemplateItem = {
+  food_id: string | null;
+  grams: number;
+  food_snapshot: FoodSnapshot;
+};
+
+export type MealTemplate = {
+  id: string;
+  profile_id: string;
+  name: string;
+  meal: string | null;
+  items: TemplateItem[];
+  created_at: string;
+  updated_at: string;
+};

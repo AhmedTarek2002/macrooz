@@ -1,6 +1,6 @@
 import { useDroppable } from "@dnd-kit/core";
 import { AnimatePresence, motion } from "motion/react";
-import { Plus } from "lucide-react";
+import { Plus, BookmarkPlus } from "lucide-react";
 import { FoodLogItem } from "./FoodLogItem";
 import { MEAL_META, type Meal } from "@/lib/nutrients";
 import { sumLogs, fmt } from "@/lib/nutrition";
@@ -14,6 +14,7 @@ export function MealSection({
   onDelete,
   onDuplicate,
   onEdit,
+  onSaveTemplate,
 }: {
   meal: Meal;
   logs: FoodLog[];
@@ -22,6 +23,7 @@ export function MealSection({
   onDelete: (id: string) => void;
   onDuplicate: (log: FoodLog) => void;
   onEdit: (log: FoodLog) => void;
+  onSaveTemplate?: (meal: Meal, logs: FoodLog[]) => void;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: `meal-${meal}`, data: { meal } });
   const totals = sumLogs(logs);
@@ -40,14 +42,27 @@ export function MealSection({
           <h2 className="font-bold">{meta.label}</h2>
           <span className="text-xs text-muted-foreground">{fmt(totals.calories)} kcal</span>
         </div>
-        <button
-          onClick={() => onAddClick(meal)}
-          className="press flex h-8 w-8 items-center justify-center rounded-full gradient-hero text-primary-foreground"
-          aria-label={`Add to ${meta.label}`}
-        >
-          <Plus className="h-4 w-4" />
-        </button>
+        <div className="flex items-center gap-1">
+          {onSaveTemplate && logs.length > 0 && (
+            <button
+              onClick={() => onSaveTemplate(meal, logs)}
+              className="press flex h-8 w-8 items-center justify-center rounded-full border bg-card text-muted-foreground"
+              aria-label={`Save ${meta.label} as template`}
+              title="Save as template"
+            >
+              <BookmarkPlus className="h-4 w-4" />
+            </button>
+          )}
+          <button
+            onClick={() => onAddClick(meal)}
+            className="press flex h-8 w-8 items-center justify-center rounded-full gradient-hero text-primary-foreground"
+            aria-label={`Add to ${meta.label}`}
+          >
+            <Plus className="h-4 w-4" />
+          </button>
+        </div>
       </div>
+
 
       <div className={`space-y-1.5 ${isOver ? "min-h-16" : ""}`}>
         <AnimatePresence initial={false}>

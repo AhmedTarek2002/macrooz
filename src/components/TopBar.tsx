@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
-import { Moon, Sun, ChevronDown, UserCog, LogOut, Check, Users } from "lucide-react";
+import { Moon, Sun, ChevronDown, LogOut, Check, Users } from "lucide-react";
 import { useProfile } from "@/context/ProfileProvider";
 import { ManageProfiles } from "@/components/ManageProfiles";
 import {
@@ -23,7 +22,6 @@ const COLOR_GRADIENT: Record<string, string> = {
 
 export function TopBar({ title, subtitle }: { title: string; subtitle?: string }) {
   const { profiles, currentProfile, setCurrentProfileId, theme, toggleTheme } = useProfile();
-  const navigate = useNavigate();
   const [manageOpen, setManageOpen] = useState(false);
 
   return (
@@ -67,9 +65,6 @@ export function TopBar({ title, subtitle }: { title: string; subtitle?: string }
                 </DropdownMenuItem>
               ))}
               <DropdownMenuSeparator />
-              <DropdownMenuItem onSelect={() => navigate({ to: "/profile" })}>
-                <UserCog className="mr-2 h-4 w-4" /> Profile &amp; Goals
-              </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => setManageOpen(true)}>
                 <Users className="mr-2 h-4 w-4" /> Manage Profiles
               </DropdownMenuItem>

@@ -10,9 +10,19 @@ import {
 } from "@dnd-kit/core";
 import { toast } from "sonner";
 import { toPng } from "html-to-image";
-import { Download, Flame, Scale, Pencil, Check, ChevronDown, Moon, Salad, Dumbbell, Save, Info } from "lucide-react";
+import { Download, Flame, Scale, Pencil, Check, ChevronDown, Moon, Salad, Dumbbell, Save, Info, Copy } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { computeMacros, type CalcInput } from "@/lib/calculator";
 import { AppShell } from "@/components/AppShell";
@@ -21,6 +31,7 @@ import { MealSection } from "@/components/MealSection";
 import { FoodPicker } from "@/components/FoodPicker";
 import { MicrosList } from "@/components/MicrosList";
 import { ProgressRing } from "@/components/ProgressRing";
+import { CopyYesterdayDialog } from "@/components/CopyYesterdayDialog";
 import { Slider } from "@/components/ui/slider";
 import {
   Collapsible,
@@ -28,10 +39,10 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { useProfile } from "@/context/ProfileProvider";
-import { useFoodLogs, useFoodLogMutations, useNutrientGoals, useWeightEntries, useWeightMutations, useDailyReview, useReviewMutations } from "@/hooks/useData";
+import { useFoodLogs, useFoodLogMutations, useNutrientGoals, useWeightEntries, useWeightMutations, useDailyReview, useReviewMutations, useMealTemplateMutations } from "@/hooks/useData";
 import { MEALS, type Meal } from "@/lib/nutrients";
 import { sumLogs, foodToSnapshot, goalsMap, todayStr, fmt, round } from "@/lib/nutrition";
-import type { DailyReview, Food, FoodLog } from "@/lib/types";
+import type { DailyReview, Food, FoodLog, MealTemplate, TemplateItem } from "@/lib/types";
 
 // Magnetic snap: keep every value 0-100 selectable, but pull values that land
 // right next to a multiple of 10 onto that multiple for an easier "magnet" stop.
@@ -61,6 +72,8 @@ function TodayPage() {
   const [tab, setTab] = useState<"meals" | "micros">("meals");
   const [pickerMeal, setPickerMeal] = useState<Meal | null>(null);
   const [editLog, setEditLog] = useState<FoodLog | null>(null);
+  const [copyOpen, setCopyOpen] = useState(false);
+  const [saveTplFor, setSaveTplFor] = useState<{ meal: Meal; logs: FoodLog[] } | null>(null);
   const mealsRef = useRef<HTMLDivElement>(null);
 
   const { data: logs = [] } = useFoodLogs(pid, date);
@@ -70,6 +83,7 @@ function TodayPage() {
   const { upsert: upsertWeight } = useWeightMutations(pid);
   const { data: review } = useDailyReview(pid, date);
   const { upsert: upsertReview } = useReviewMutations(pid, date);
+  const { create: createTemplate } = useMealTemplateMutations(pid);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -112,6 +126,71 @@ function TodayPage() {
     });
   };
 
+  const handleCopyLogs = (source: FoodLog[]) => {
+    if (source.length === 0) {
+      toast.info("Nothing to copy");
+      return;
+    }
+    const perMealCount: Record<string, number> = {
+      breakfast: byMeal.breakfast?.length ?? 0,
+      lunch: byMeal.lunch?.length ?? 0,
+      dinner: byMeal.dinner?.length ?? 0,
+      snacks: byMeal.snacks?.length ?? 0,
+    };
+    for (const log of source) {
+      const pos = perMealCount[log.meal] ?? 0;
+      perMealCount[log.meal] = pos + 1;
+      add.mutate({
+        profile_id: pid!,
+        food_id: log.food_id,
+        log_date: date,
+        meal: log.meal,
+        grams: log.grams,
+        position: pos,
+        food_snapshot: log.food_snapshot,
+      });
+    }
+    toast.success(`Copied ${source.length} item${source.length === 1 ? "" : "s"}`);
+  };
+
+  const handleSaveTemplate = (meal: Meal, mealLogs: FoodLog[]) => {
+    setSaveTplFor({ meal, logs: mealLogs });
+  };
+
+  const commitSaveTemplate = (name: string) => {
+    if (!saveTplFor || !name.trim()) return;
+    const items: TemplateItem[] = saveTplFor.logs.map((l) => ({
+      food_id: l.food_id,
+      grams: l.grams,
+      food_snapshot: l.food_snapshot,
+    }));
+    createTemplate.mutate(
+      { name: name.trim(), meal: saveTplFor.meal, items },
+      {
+        onSuccess: () => toast.success("Template saved"),
+        onError: () => toast.error("Could not save template"),
+      },
+    );
+    setSaveTplFor(null);
+  };
+
+  const handleApplyTemplate = (template: MealTemplate, meal: Meal) => {
+    const items = (template.items || []) as TemplateItem[];
+    let pos = byMeal[meal]?.length ?? 0;
+    for (const it of items) {
+      add.mutate({
+        profile_id: pid!,
+        food_id: it.food_id,
+        log_date: date,
+        meal,
+        grams: it.grams,
+        position: pos++,
+        food_snapshot: it.food_snapshot,
+      });
+    }
+    toast.success(`Added "${template.name}"`);
+  };
+
   const onDragEnd = (e: DragEndEvent) => {
     const { active, over } = e;
     if (!over) return;
@@ -146,6 +225,13 @@ function TodayPage() {
   return (
     <div className="space-y-3">
       <DateNav date={date} onChange={setDate} />
+
+      <button
+        onClick={() => setCopyOpen(true)}
+        className="press flex w-full items-center justify-center gap-2 rounded-xl border bg-card py-2.5 text-sm font-semibold shadow-card"
+      >
+        <Copy className="h-4 w-4 text-primary" /> Copy Yesterday's Meals
+      </button>
 
       {/* Morning weigh-in */}
       <WeightCard
@@ -216,6 +302,7 @@ function TodayPage() {
                 onDelete={(id) => remove.mutate(id)}
                 onDuplicate={handleDuplicate}
                 onEdit={(log) => setEditLog(log)}
+                onSaveTemplate={handleSaveTemplate}
               />
             ))}
           </div>
@@ -230,8 +317,26 @@ function TodayPage() {
           open={!!pickerMeal}
           onOpenChange={(o) => !o && setPickerMeal(null)}
           onAdd={(food, grams) => handleAdd(food, grams, pickerMeal)}
+          profileId={pid}
+          onApplyTemplate={handleApplyTemplate}
         />
       )}
+
+      <CopyYesterdayDialog
+        open={copyOpen}
+        onOpenChange={setCopyOpen}
+        profileId={pid}
+        date={date}
+        onCopy={handleCopyLogs}
+      />
+
+      <SaveTemplateDialog
+        open={!!saveTplFor}
+        meal={saveTplFor?.meal ?? null}
+        itemCount={saveTplFor?.logs.length ?? 0}
+        onCancel={() => setSaveTplFor(null)}
+        onSave={commitSaveTemplate}
+      />
 
       {editLog && (
         <FoodPicker
@@ -265,6 +370,51 @@ function TodayPage() {
         }
       />
     </div>
+  );
+}
+
+function SaveTemplateDialog({
+  open,
+  meal,
+  itemCount,
+  onCancel,
+  onSave,
+}: {
+  open: boolean;
+  meal: Meal | null;
+  itemCount: number;
+  onCancel: () => void;
+  onSave: (name: string) => void;
+}) {
+  const [name, setName] = useState("");
+  useEffect(() => {
+    if (open) setName("");
+  }, [open]);
+  return (
+    <AlertDialog open={open} onOpenChange={(o) => !o && onCancel()}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Save as template</AlertDialogTitle>
+          <AlertDialogDescription>
+            Save these {itemCount} item{itemCount === 1 ? "" : "s"}
+            {meal ? ` from ${meal}` : ""} as a reusable meal template.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <input
+          autoFocus
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="e.g. Classic Eggs & Toast"
+          className="w-full rounded-xl border bg-background px-3 py-2.5 outline-none focus:ring-2 focus:ring-ring"
+        />
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={onCancel}>Cancel</AlertDialogCancel>
+          <AlertDialogAction disabled={!name.trim()} onClick={() => onSave(name)}>
+            Save
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 

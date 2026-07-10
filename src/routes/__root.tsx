@@ -104,8 +104,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary" },
       { name: "twitter:title", content: "Macrooz" },
       { name: "twitter:description", content: "Plan meals and track macros, micros, weight and fitness with Macrooz." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/99b873f2-90a3-4e7d-8e55-b9725e199033/id-preview-1fb8459f--8c0bf932-5360-4748-aaeb-63bf27c56518.lovable.app-1783582904332.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/99b873f2-90a3-4e7d-8e55-b9725e199033/id-preview-1fb8459f--8c0bf932-5360-4748-aaeb-63bf27c56518.lovable.app-1783582904332.png" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/64b1715f-44d2-4193-8f99-d948b036b5f5" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/64b1715f-44d2-4193-8f99-d948b036b5f5" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -117,6 +117,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap",
       },
+      { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
     ],
   }),
   shellComponent: RootShell,

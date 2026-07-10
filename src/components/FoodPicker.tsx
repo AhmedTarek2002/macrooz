@@ -1,15 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
-import { Search, Minus, Plus, Check, X } from "lucide-react";
+import { Search, Minus, Plus, Check, X, Bookmark, Trash2 } from "lucide-react";
 import {
   Drawer,
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import { useFoods } from "@/hooks/useData";
+import { useFoods, useMealTemplates, useMealTemplateMutations } from "@/hooks/useData";
 import { FOOD_CATEGORIES, MEAL_META, type Meal } from "@/lib/nutrients";
-import { foodToSnapshot, fmt } from "@/lib/nutrition";
-import type { Food, FoodLog } from "@/lib/types";
+import { fmt, sumLogs } from "@/lib/nutrition";
+import type { Food, FoodLog, MealTemplate, TemplateItem } from "@/lib/types";
+
 
 const PRESETS = [50, 100, 200];
 
@@ -20,6 +21,8 @@ export function FoodPicker({
   onAdd,
   editLog,
   onUpdate,
+  profileId,
+  onApplyTemplate,
 }: {
   meal: Meal;
   open: boolean;
@@ -27,12 +30,17 @@ export function FoodPicker({
   onAdd: (food: Food, grams: number) => void;
   editLog?: FoodLog | null;
   onUpdate?: (food: Food, grams: number) => void;
+  profileId?: string | null;
+  onApplyTemplate?: (template: MealTemplate, meal: Meal) => void;
 }) {
   const { data: foods = [] } = useFoods();
+  const { data: templates = [] } = useMealTemplates(profileId ?? null);
+  const { remove: removeTpl } = useMealTemplateMutations(profileId ?? null);
   const [query, setQuery] = useState("");
   const [cat, setCat] = useState<string>("All");
   const [selected, setSelected] = useState<Food | null>(null);
   const [grams, setGrams] = useState(100);
+  const [tab, setTab] = useState<"foods" | "templates">("foods");
   const isEdit = !!editLog;
 
   // When editing, jump straight to the current food's detail with its grams.
@@ -42,7 +50,9 @@ export function FoodPicker({
       setSelected(current);
       setGrams(editLog.grams);
     }
+    if (open && !editLog) setTab("foods");
   }, [open, editLog, foods]);
+
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -84,55 +94,132 @@ export function FoodPicker({
 
         {!selected ? (
           <div className="flex min-h-0 flex-1 flex-col px-4 pb-6">
-            <div className="relative shrink-0">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search foods…"
-                dir="auto"
-                className="w-full rounded-xl border bg-background py-2.5 pl-9 pr-3 outline-none focus:ring-2 focus:ring-ring"
-              />
-            </div>
+            {!isEdit && onApplyTemplate && (
+              <div className="mb-3 flex shrink-0 rounded-full bg-muted p-1">
+                {(["foods", "templates"] as const).map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => setTab(t)}
+                    className={`press flex-1 rounded-full py-1.5 text-xs font-semibold capitalize ${
+                      tab === t ? "bg-card shadow-card text-foreground" : "text-muted-foreground"
+                    }`}
+                  >
+                    {t === "foods" ? "Foods" : `Templates${templates.length ? ` (${templates.length})` : ""}`}
+                  </button>
+                ))}
+              </div>
+            )}
 
-            <div className="mt-3 flex shrink-0 gap-2 overflow-x-auto py-1 [scrollbar-width:none]">
-              {["All", ...FOOD_CATEGORIES].map((c) => (
-                <button
-                  key={c}
-                  onClick={() => setCat(c)}
-                  className={`press whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold ${
-                    cat === c ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-                  }`}
-                >
-                  {c}
-                </button>
-              ))}
-            </div>
+            {tab === "templates" && !isEdit && onApplyTemplate ? (
+              <div className="min-h-0 flex-1 space-y-1.5 overflow-y-auto">
+                {templates.length === 0 && (
+                  <p className="py-8 text-center text-sm text-muted-foreground">
+                    No templates yet. Save a meal as a template from any meal card.
+                  </p>
+                )}
+                {templates.map((t) => {
+                  const items = (t.items || []) as TemplateItem[];
+                  const totals = sumLogs(
+                    items.map((it, i) => ({
+                      id: String(i),
+                      profile_id: "",
+                      food_id: it.food_id,
+                      log_date: "",
+                      meal: "",
+                      grams: it.grams,
+                      position: i,
+                      food_snapshot: it.food_snapshot,
+                      created_at: "",
+                    })),
+                  );
+                  return (
+                    <div
+                      key={t.id}
+                      className="flex w-full items-center gap-3 rounded-xl border bg-card p-2.5 text-left"
+                    >
+                      <button
+                        onClick={() => {
+                          onApplyTemplate(t, meal);
+                          onOpenChange(false);
+                        }}
+                        className="press flex min-w-0 flex-1 items-center gap-3 text-left"
+                      >
+                        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-lg">
+                          <Bookmark className="h-4 w-4" />
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-semibold" dir="auto">{t.name}</p>
+                          <p className="text-[11px] text-muted-foreground">
+                            {items.length} items · {fmt(totals.calories)} kcal
+                          </p>
+                        </div>
+                        <Plus className="h-4 w-4 text-primary" />
+                      </button>
+                      <button
+                        onClick={() => removeTpl.mutate(t.id)}
+                        className="press p-1.5 text-status-over"
+                        aria-label="Delete template"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <>
+                <div className="relative shrink-0">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <input
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="Search foods…"
+                    dir="auto"
+                    className="w-full rounded-xl border bg-background py-2.5 pl-9 pr-3 outline-none focus:ring-2 focus:ring-ring"
+                  />
+                </div>
 
-            <div className="mt-3 min-h-0 flex-1 space-y-1.5 overflow-y-auto">
-              {filtered.length === 0 && (
-                <p className="py-8 text-center text-sm text-muted-foreground">No foods found.</p>
-              )}
-              {filtered.map((f) => (
-                <button
-                  key={f.id}
-                  onClick={() => setSelected(f)}
-                  className="press flex w-full items-center gap-3 rounded-xl border bg-card p-2.5 text-left"
-                >
-                  <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-lg">
-                    {f.icon}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold" dir="auto">{f.name}</p>
-                    <p className="text-[11px] text-muted-foreground">
-                      {fmt(f.calories)} kcal · P{fmt(f.protein)} C{fmt(f.carbs)} F{fmt(f.fat)} /100g
-                    </p>
-                  </div>
-                  <Plus className="h-4 w-4 text-primary" />
-                </button>
-              ))}
-            </div>
+                <div className="mt-3 flex shrink-0 gap-2 overflow-x-auto py-1 [scrollbar-width:none]">
+                  {["All", ...FOOD_CATEGORIES].map((c) => (
+                    <button
+                      key={c}
+                      onClick={() => setCat(c)}
+                      className={`press whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold ${
+                        cat === c ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      {c}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="mt-3 min-h-0 flex-1 space-y-1.5 overflow-y-auto">
+                  {filtered.length === 0 && (
+                    <p className="py-8 text-center text-sm text-muted-foreground">No foods found.</p>
+                  )}
+                  {filtered.map((f) => (
+                    <button
+                      key={f.id}
+                      onClick={() => setSelected(f)}
+                      className="press flex w-full items-center gap-3 rounded-xl border bg-card p-2.5 text-left"
+                    >
+                      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-lg">
+                        {f.icon}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold" dir="auto">{f.name}</p>
+                        <p className="text-[11px] text-muted-foreground">
+                          {fmt(f.calories)} kcal · P{fmt(f.protein)} C{fmt(f.carbs)} F{fmt(f.fat)} /100g
+                        </p>
+                      </div>
+                      <Plus className="h-4 w-4 text-primary" />
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
+
         ) : (
           <div className="px-4 pb-8">
             <div className="flex items-center gap-3 rounded-xl border bg-card p-3">
